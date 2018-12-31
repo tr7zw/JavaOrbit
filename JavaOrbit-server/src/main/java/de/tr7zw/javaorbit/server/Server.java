@@ -3,6 +3,7 @@ package de.tr7zw.javaorbit.server;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import de.tr7zw.javaorbit.server.chat.ChatManager;
 import de.tr7zw.javaorbit.server.connection.ConnectionListener;
 import de.tr7zw.javaorbit.server.connection.ConnectionPool;
 import de.tr7zw.javaorbit.server.maps.MapManager;
@@ -23,6 +24,8 @@ public class Server {
 	private ConnectionPool connectionPool;
 	@Getter
 	private MapManager mapManager;
+	@Getter
+	private ChatManager chatManager;
 	
 	public static void main(String[] args) throws InterruptedException {
 		new Server();
@@ -43,6 +46,7 @@ public class Server {
 			return;
 		}
 		mapManager = new MapManager();
+		chatManager = new ChatManager();
 	}
 
 }

@@ -6,11 +6,11 @@ import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.PlayerConnection;
 import de.tr7zw.javaorbit.server.connection.Session;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutPermanentTitle;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutPlayerInfo;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSetDrones;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSetMap;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShowMessage;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPermanentTitle;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPlayerInfo;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDrones;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetMap;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShowMessage;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
@@ -28,7 +28,9 @@ import lombok.Setter;
 @Getter
 public class Player implements EntityPlayer{
 
-	private String name = "Debug";
+	private static int DEBUG_COUNTER = 0;
+	
+	private String name = "Debug" + (++DEBUG_COUNTER);
 	@NonNull private PlayerConnection connection;
 	@NonNull private Session session;
 	@Setter private Location location = new Location(Server.getInstance().getMapManager().getInstance(Maps.MAP1_1), 1000, 1000);
@@ -86,8 +88,8 @@ public class Player implements EntityPlayer{
 		connection.send("7", "MAINMENU_POSITION," + settings.getMainmenuPosition());
 		
 		updatePlayer();
-		sendPacket(new PacketOutSetMap(getLocation().getInstance().getMap()));
-		sendPacket(new PacketOutSetDrones(getSession().getUserId()));
+		sendPacket(new PacketPlayOutSetMap(getLocation().getInstance().getMap()));
+		sendPacket(new PacketPlayOutSetDrones(getSession().getUserId()));
 		String send = 
 				"f|C|1|" + getPlayerShip().getType().getId() + "|3||" + getName() + "|900|1700|1|1|1|0|0|0| 0|n|d|1|3/2-25-25,3/4-25-25-25-25,3/2-25-25|\r\n" + 
 				"0|1|-2|5200|6000|687| 0|1|-3|9700|2000|1535| 0|1|-4|17300|9500|3433| 0|1|-5|9100|3000|1942| 0|1|-6|15700|2700|687| 0|1|-7|7800|1700|971| 0|1|-8|7400|9800|1373|\r\n" + 
@@ -218,7 +220,7 @@ public class Player implements EntityPlayer{
 	}
 	
 	public void sendMessage(String message) {
-		sendPacket(new PacketOutShowMessage(message));
+		sendPacket(new PacketPlayOutShowMessage(message));
 	}
 	
 	public void sendPacket(PacketOut packet) {
@@ -226,10 +228,10 @@ public class Player implements EntityPlayer{
 	}
 	
 	public void updatePlayer() {
-		sendPacket(new PacketOutPlayerInfo(session.getUserId(), getName(), getPlayerShip().getType(), getPlayerShip().getSpeed(), getPlayerShip().getShield(), getPlayerShip().getMaxShield(), getPlayerShip().getHp(), getPlayerShip().getMaxHp(), getPlayerShip().getCargo(), getPlayerShip().getMaxCargo(), (int)getLocation().getX(), (int)getLocation().getY(), getLocation().getInstance().getMap(), faction,
+		sendPacket(new PacketPlayOutPlayerInfo(session.getUserId(), getName(), getPlayerShip().getType(), getPlayerShip().getSpeed(), getPlayerShip().getShield(), getPlayerShip().getMaxShield(), getPlayerShip().getHp(), getPlayerShip().getMaxHp(), getPlayerShip().getCargo(), getPlayerShip().getMaxCargo(), (int)getLocation().getX(), (int)getLocation().getY(), getLocation().getInstance().getMap(), faction,
 				1, 10000, 10000, 1, getPlayerData().isPremium(), getPlayerData().getExp(), getPlayerData().getHonor(), getPlayerData().getLevel(), getPlayerData().getCredits(), getPlayerData().getUridium(), getPlayerData().getJackpot(), rank, clan != null ? clan.getTag() : "", rings, false));
-		sendPacket(new PacketOutSetDrones(getSession().getUserId()));
-		sendPacket(new PacketOutPermanentTitle(session.getUserId(), title));
+		sendPacket(new PacketPlayOutSetDrones(getSession().getUserId()));
+		sendPacket(new PacketPlayOutPermanentTitle(session.getUserId(), title));
 	}
 	
 	public static String toEnum(boolean isTrue)

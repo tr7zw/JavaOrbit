@@ -10,10 +10,10 @@ import de.tr7zw.javaorbit.server.GateTarget;
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.Position;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShipRemove;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSpawnCollectable;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSpawnGate;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSpawnStation;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnCollectable;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnGate;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnStation;
 import de.tr7zw.javaorbit.server.enums.Gate;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Station;
@@ -78,7 +78,7 @@ public class MapInstance {
 	public void removeLiving(EntityLiving entity) {
 		if(players.containsKey(entity.getId())) {
 			for(Player p : players.values()) {
-				p.sendPacket(new PacketOutShipRemove(entity.getId()));
+				p.sendPacket(new PacketPlayOutShipRemove(entity.getId()));
 				p.getPlayerView().getViewLiving().remove(entity);
 			}
 			players.remove(entity.getId());
@@ -97,13 +97,13 @@ public class MapInstance {
 	
 	public void sendStatic(Player player) {
 		for(EntityCollectable entity : collectables.values()) { //Nonstatic
-			player.sendPacket(new PacketOutSpawnCollectable(entity.getId(), entity.getType(), entity.getLocation().getX(), entity.getLocation().getY()));
+			player.sendPacket(new PacketPlayOutSpawnCollectable(entity.getId(), entity.getType(), entity.getLocation().getX(), entity.getLocation().getY()));
 		}
 		for(Entry<Position, Station> entry : stations.entrySet()) {
-			player.sendPacket(new PacketOutSpawnStation(entry.getValue().name(), entry.getValue(), entry.getKey().getX(), entry.getKey().getY()));
+			player.sendPacket(new PacketPlayOutSpawnStation(entry.getValue().name(), entry.getValue(), entry.getKey().getX(), entry.getKey().getY()));
 		}
 		for(EntityGate gate : gates.values()) {
-			player.sendPacket(new PacketOutSpawnGate(gate.getId(), gate.getGate(), gate.getLocation().getX(), gate.getLocation().getY()));
+			player.sendPacket(new PacketPlayOutSpawnGate(gate.getId(), gate.getGate(), gate.getLocation().getX(), gate.getLocation().getY()));
 		}
 	}
 	

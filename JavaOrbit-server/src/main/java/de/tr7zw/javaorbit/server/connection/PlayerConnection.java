@@ -7,12 +7,16 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import de.tr7zw.javaorbit.server.Server;
+import de.tr7zw.javaorbit.server.chat.ChatUser;
 import de.tr7zw.javaorbit.server.connection.packet.Packet;
-import de.tr7zw.javaorbit.server.connection.packet.PacketIn;
+import de.tr7zw.javaorbit.server.connection.packet.PacketChatIn;
+import de.tr7zw.javaorbit.server.connection.packet.PacketPlayIn;
+import de.tr7zw.javaorbit.server.connection.packet.chat.in.PacketChatInInit;
 import de.tr7zw.javaorbit.server.connection.packet.PacketParser;
-import de.tr7zw.javaorbit.server.connection.packet.in.PacketInLogin;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLogin;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
 import lombok.NonNull;
@@ -35,6 +39,8 @@ public class PlayerConnection implements Runnable{
 
 	@Getter
 	private Player player;
+	@Getter
+	private ChatUser chatUser;
 
 	public PlayerConnection(@NonNull Socket socket) throws IOException {
 		this.id = ID_COUNTER.incrementAndGet();
@@ -66,8 +72,8 @@ public class PlayerConnection implements Runnable{
 					disconnect();
 					continue;
 				}
-				if(!message.contains("" + (char)0x00)) {
-					continue;
+				if(!message.contains("" + (char)0x00)) {//Doesn't work with chat
+					//continue;
 				}
 				for(String data : message.split("" + (char)0x00)){
 					parsePacket(data);
@@ -89,6 +95,9 @@ public class PlayerConnection implements Runnable{
 		}
 		if(player != null) {
 			Server.getInstance().getMapManager().removePlayer(player);
+		}
+		if(chatUser != null) {
+			Server.getInstance().getChatManager().removeUser(chatUser);
 		}
 		log.info("Closed connection ID: " + id);
 	}
@@ -119,19 +128,42 @@ public class PlayerConnection implements Runnable{
 	public void parsePacket(String data) {
 		Packet packet = PacketParser.parse(data);
 		if(packet == null)return;
+		if(chatUser != null) {
+			if(packet instanceof PacketPlayIn) {//wtf? No Play packets from the chat connection!
+				log.log(Level.WARNING, "The Chatuser " + chatUser.getUserName() + " sent a Play Packet: " + packet.getClass().getSimpleName());
+				disconnect();
+				return;
+			}
+			PacketChatIn chatPacket = (PacketChatIn) packet;
+			chatPacket.onRecieve(chatUser);
+			return;
+		}
 		if(player == null) {
-			if(packet instanceof PacketInLogin) {
-				PacketInLogin login = (PacketInLogin) packet;
+			if(packet instanceof PacketPlayInLogin) {
+				PacketPlayInLogin login = (PacketPlayInLogin) packet;
 				player = new Player(this, new Session(login.getUserId(), login.getSessionToken(), login.getVersion())); 
 				//TODO: Validate session
 				player.sendLogin();
 				return;
+			}else if(packet instanceof PacketChatInInit){
+				ChatUser chatUser = new ChatUser(this);
+				PacketChatInInit init = (PacketChatInInit) packet;
+				init.onRecieve(chatUser);
+				if(chatUser.isConnected()) {
+					this.chatUser = chatUser;
+					log.log(Level.INFO, "Chatuser " + chatUser.getUserName() +  " connected!");
+					Server.getInstance().getChatManager().addUser(chatUser);
+				}else {
+					disconnect();
+					return;
+				}
 			}else {
 				disconnect();
+				return;
 			}
 		}else {
-			if(packet instanceof PacketIn) {
-				PacketIn in = (PacketIn) packet;
+			if(packet instanceof PacketPlayIn) {
+				PacketPlayIn in = (PacketPlayIn) packet;
 				in.onRecieve(getPlayer());
 			}else {
 				System.out.println(packet.getClass().getSimpleName());

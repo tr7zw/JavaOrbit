@@ -1,14 +1,14 @@
 package de.tr7zw.javaorbit.server.maps;
 
 import de.tr7zw.javaorbit.server.Server;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutLaserStop;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutPermanentTitle;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSetDrones;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShipData;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShipMove;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShipRemove;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShootLaser;
-import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSpawnShip;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPermanentTitle;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDrones;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipData;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipMove;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShootLaser;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnShip;
 import de.tr7zw.javaorbit.server.enums.Ammo;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
@@ -48,12 +48,12 @@ public class InstanceThread extends Thread{
 		if(player.getPlayerView().isAttacking() && player.getPlayerView().getSelected() != null && serverTick % tickrate == 0) {
 			player.getPlayerView().setWasAttacking(true);
 			EntityLiving target = player.getPlayerView().getSelected();
-			instance.sendContextPacket(player, new PacketOutShootLaser(player.getId(), target.getId(), Ammo.USB100, true, true));
-			player.sendPacket(new PacketOutShipData(target.getId(), target.getName(), target.getShip().getShield(), target.getShip().getMaxShield(), target.getShip().getHp(), target.getShip().getMaxHp()));
+			instance.sendContextPacket(player, new PacketPlayOutShootLaser(player.getId(), target.getId(), Ammo.USB100, true, true));
+			player.sendPacket(new PacketPlayOutShipData(target.getId(), target.getName(), target.getShip().getShield(), target.getShip().getMaxShield(), target.getShip().getHp(), target.getShip().getMaxHp()));
 		}
 
 		if(!player.getPlayerView().isAttacking() && player.getPlayerView().isWasAttacking()) {
-			player.getLocation().getInstance().sendContextPacket(player, new PacketOutLaserStop(player.getId(), player.getPlayerView().getSelectedId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
+			player.getLocation().getInstance().sendContextPacket(player, new PacketPlayOutLaserStop(player.getId(), player.getPlayerView().getSelectedId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
 			player.getPlayerView().setWasAttacking(false);
 		}
 	}
@@ -88,20 +88,20 @@ public class InstanceThread extends Thread{
 							int distance = other.getLocation().distance(other.getTargetLocation());
 							int time = distance / other.getShip().getSpeed() * 1080;
 							if(time == 0)time = 1000;
-							player.sendPacket(new PacketOutShipMove(other.getId(), other.getTargetLocation().getX(), other.getTargetLocation().getY(), time));
+							player.sendPacket(new PacketPlayOutShipMove(other.getId(), other.getTargetLocation().getX(), other.getTargetLocation().getY(), time));
 						}
 					} else {//despawn
 						if(!asTarget) {
 							view.getViewLiving().remove(other);
-							player.sendPacket(new PacketOutShipRemove(other.getId()));
+							player.sendPacket(new PacketPlayOutShipRemove(other.getId()));
 						}
 					}
 				} else { //Can't see player
 					if(player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
 						view.getViewLiving().add(other);
-						player.sendPacket(new PacketOutSpawnShip(other.getId(), other.getShip().getType(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), true, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
-						player.sendPacket(new PacketOutSetDrones(other.getId()));
-						player.sendPacket(new PacketOutPermanentTitle(other.getId(), other.getTitle()));
+						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), true, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
+						player.sendPacket(new PacketPlayOutSetDrones(other.getId()));
+						player.sendPacket(new PacketPlayOutPermanentTitle(other.getId(), other.getTitle()));
 					}
 				}
 			}
