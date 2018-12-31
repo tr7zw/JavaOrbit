@@ -12,7 +12,6 @@ public class PacketInSelectShip extends PacketIn{
 	
 	public PacketInSelectShip(String data) { // SEL|2
 		super(data);
-		System.out.println("Select Ship: " + data);
 		id = Integer.parseInt(clearString(data).split("\\|")[1]);
 	}
 

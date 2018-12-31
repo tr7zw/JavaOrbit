@@ -42,7 +42,7 @@ public class Player implements EntityPlayer{
 	private Faction faction = Faction.MMO;
 	private Rank rank = Rank.ADMIN;
 	private Title title = Title.ADMIN_TITLE;
-	private String clan = "Admin";
+	private Clan clan = new Clan(1, "Admins", "Admin");
 	@Setter private int viewDistance = 2000;
 	private Rings rings = Rings.PYRAMIDE;
 	private int speed = 400;
@@ -227,7 +227,7 @@ public class Player implements EntityPlayer{
 	
 	public void updatePlayer() {
 		sendPacket(new PacketOutPlayerInfo(session.getUserId(), getName(), getPlayerShip().getType(), getPlayerShip().getSpeed(), getPlayerShip().getShield(), getPlayerShip().getMaxShield(), getPlayerShip().getHp(), getPlayerShip().getMaxHp(), getPlayerShip().getCargo(), getPlayerShip().getMaxCargo(), (int)getLocation().getX(), (int)getLocation().getY(), getLocation().getInstance().getMap(), faction,
-				1, 10000, 10000, 1, getPlayerData().isPremium(), getPlayerData().getExp(), getPlayerData().getHonor(), getPlayerData().getLevel(), getPlayerData().getCredits(), getPlayerData().getUridium(), getPlayerData().getJackpot(), rank, clan, rings, false));
+				1, 10000, 10000, 1, getPlayerData().isPremium(), getPlayerData().getExp(), getPlayerData().getHonor(), getPlayerData().getLevel(), getPlayerData().getCredits(), getPlayerData().getUridium(), getPlayerData().getJackpot(), rank, clan != null ? clan.getTag() : "", rings, false));
 		sendPacket(new PacketOutSetDrones(getSession().getUserId()));
 		sendPacket(new PacketOutPermanentTitle(session.getUserId(), title));
 	}

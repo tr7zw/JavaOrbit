@@ -1,6 +1,7 @@
 package de.tr7zw.javaorbit.server.maps;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -8,6 +9,7 @@ import java.util.logging.Level;
 import de.tr7zw.javaorbit.server.GateTarget;
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.Position;
+import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
 import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSpawnCollectable;
 import de.tr7zw.javaorbit.server.connection.packet.out.PacketOutSpawnGate;
@@ -19,6 +21,7 @@ import de.tr7zw.javaorbit.server.enums.collectables.Collectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityCollectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
+import de.tr7zw.javaorbit.server.npc.EntityNPC;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -51,6 +54,10 @@ public class MapInstance {
 			stations.put(new Position(20000, 12000), Station.VRU_STATION);
 		}
 		thread.start();
+	}
+	
+	public void addNPC(EntityNPC npc) {
+		this.livingEntities.put(npc.getId(), npc);
 	}
 	
 	public void addPlayer(Player player) {
@@ -97,6 +104,17 @@ public class MapInstance {
 		}
 		for(EntityGate gate : gates.values()) {
 			player.sendPacket(new PacketOutSpawnGate(gate.getId(), gate.getGate(), gate.getLocation().getX(), gate.getLocation().getY()));
+		}
+	}
+	
+	public void sendContextPacket(Player player, PacketOut packet) {
+		HashSet<Player> sendList = new HashSet<>();
+		sendList.add(player);
+		player.getPlayerView().getViewLiving().stream().filter(liv -> liv instanceof Player).forEach(liv -> sendList.add((Player) liv));
+		if(player.getPlayerView().getSelected() instanceof Player)
+			sendList.add((Player) player.getPlayerView().getSelected());
+		for(Player p : sendList) {
+			p.sendPacket(packet);
 		}
 	}
 	

@@ -15,5 +15,7 @@ public class PlayerView {
 	private HashMap<EntityLiving, Integer> lastLoc = new HashMap<>();
 	private int selectedId = 0;
 	private EntityLiving selected = null;
+	private boolean attacking = false;
+	private boolean wasAttacking = false;
 	
 }

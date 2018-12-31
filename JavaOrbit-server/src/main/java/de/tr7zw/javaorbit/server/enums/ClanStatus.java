@@ -5,14 +5,11 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum Ammo {
-LCB10(0),
-MCB25(1),
-MCB50(2),
-USB100(3),
-SAB50(4),
-RSB75(6)
-
-;
+public enum ClanStatus {
+NEUTRAL(0),
+PEACE(1),
+NAP(2),
+WAR(3),
+	;
 	private int id;
 }

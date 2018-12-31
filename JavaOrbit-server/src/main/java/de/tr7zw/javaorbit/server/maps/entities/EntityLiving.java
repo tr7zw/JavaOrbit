@@ -5,6 +5,7 @@ import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
 import de.tr7zw.javaorbit.server.enums.Title;
+import de.tr7zw.javaorbit.server.player.Clan;
 
 public interface EntityLiving extends Entity{
 
@@ -14,7 +15,7 @@ public interface EntityLiving extends Entity{
 	public Title getTitle();
 	public Rank getRank();
 	public Rings getRings();
-	public String getClan();
+	public Clan getClan();
 	public void setLocation(Location location);
 	//Moving
 	public Location getTargetLocation();

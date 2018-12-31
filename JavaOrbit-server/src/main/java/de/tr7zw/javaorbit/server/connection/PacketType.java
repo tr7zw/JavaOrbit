@@ -75,6 +75,9 @@ ADMIN_POS(Direction.IN, "/POS", PacketInAdminPos.class),
 	
 	public static PacketType getType(String data) {
 		for(PacketType type : values()) {
+			if(data.startsWith(type.getPacketId())) {
+				return type;
+			}
 			if(data.toUpperCase().startsWith(type.getPacketId())) {
 				return type;
 			}

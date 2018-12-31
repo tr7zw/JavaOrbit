@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Rank {
+	NONE(0),
 	BASIC_SPACE_PILOT(1),
 	SPACE_PILOT(2),
 	CHIEF_SPACE_PILOT(3),
