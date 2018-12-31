@@ -3,7 +3,7 @@ package de.tr7zw.javaorbit.server.chat;
 import java.util.HashMap;
 
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
-import de.tr7zw.javaorbit.server.connection.packet.chat.out.PacketChatOutPlayerMessage;
+import de.tr7zw.javaorbit.server.connection.packet.chat.out.PacketChatOutUserMessage;
 import de.tr7zw.javaorbit.server.connection.packet.chat.out.PacketChatOutRegisterChannel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -28,7 +28,7 @@ public class ChatChannel {
 	
 	public void chat(ChatUser user, String message) {
 		if(users.containsKey(user.getId())) {
-			PacketOut packet = new PacketChatOutPlayerMessage(id, user.getUserName(), message);
+			PacketOut packet = new PacketChatOutUserMessage(id, user.getUserName(), message, user.getClanTag());
 			for(ChatUser member : users.values()) {
 				member.sendPacket(packet);
 			}

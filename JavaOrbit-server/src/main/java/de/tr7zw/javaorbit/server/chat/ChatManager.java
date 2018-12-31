@@ -11,8 +11,8 @@ public class ChatManager {
 	private HashMap<Integer, ChatChannel> publicChannels = new HashMap<>();
 	
 	public ChatManager() {
-		addChannel(new ChatChannel(0, 1, "Global"));//a%1%test@
-		addChannel(new ChatChannel(1, 2, "MMO"));//a%2%mmo@
+		addChannel(new ChatChannel(0, 1, "Global"));
+		addChannel(new ChatChannel(1, 2, "MMO"));
 		addChannel(new ChatChannel(2, 3, "EIC"));
 		addChannel(new ChatChannel(3, 4, "VRU"));
 	}

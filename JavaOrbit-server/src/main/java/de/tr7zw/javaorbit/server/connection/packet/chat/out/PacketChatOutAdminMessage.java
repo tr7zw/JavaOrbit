@@ -6,15 +6,16 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class PacketChatOutPlayerMessage extends PacketOut{
+public class PacketChatOutAdminMessage extends PacketOut{
 
 	private int channelId;
 	private String userName;
 	private String text;
+	private String clanTag;
 	
 	@Override
 	public StringBuilder buildData() {
-		return new StringBuilder("j%").append(channelId).append("@").append(userName).append("@").append(text).append("@3#");
+		return new StringBuilder("j%").append(channelId).append("@").append(userName).append("@").append(text).append("@").append(clanTag).append("#");
 	}
 
 }

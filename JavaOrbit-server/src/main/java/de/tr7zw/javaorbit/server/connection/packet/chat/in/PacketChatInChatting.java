@@ -11,7 +11,7 @@ public class PacketChatInChatting extends PacketChatIn{
 	private int channel;
 	private String text;
 	
-	public PacketChatInChatting(String data) {//a%1%test@
+	public PacketChatInChatting(String data) {
 		super(data);
 		String[] ar = clearString(data).split("@")[0].split("\\%");
 		channel = Integer.parseInt(ar[1]);
