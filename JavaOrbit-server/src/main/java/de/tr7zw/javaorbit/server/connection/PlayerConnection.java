@@ -130,6 +130,7 @@ public class PlayerConnection implements Runnable{
 	}
 
 	public void parsePacket(String data) {
+		data = data.replace("\n", "");
 		Packet packet = PacketParser.parse(data);
 		if(packet == null)return;
 		if(chatUser != null) {

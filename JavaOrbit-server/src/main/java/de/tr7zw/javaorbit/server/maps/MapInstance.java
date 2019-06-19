@@ -53,6 +53,9 @@ public class MapInstance {
 		if(map == Maps.MAP3_1) {
 			stations.put(new Position(20000, 12000), Station.VRU_STATION);
 		}
+		if(map == Maps.MAP1_2){
+			addGate(new EntityGate(Gate.NORMAL, new Location(this, 1000, 1000), new GateTarget(Maps.MAP1_1, 18500,11500)));
+		}
 		thread.start();
 	}
 	
@@ -94,6 +97,15 @@ public class MapInstance {
 	public void addGate(EntityGate gate) {
 		gates.put(gate.getId(), gate);
 	}
+
+	public EntityGate getGateAt(Location location){
+		if(!location.getInstance().equals(this))return null;
+		for(EntityGate gate : gates.values()){
+			if(gate.getLocation().inDistance(location, 300))
+				return gate;
+		}
+		return null;
+	}
 	
 	public void sendStatic(Player player) {
 		for(EntityCollectable entity : collectables.values()) { //Nonstatic
@@ -118,4 +130,9 @@ public class MapInstance {
 		}
 	}
 	
+	@Override
+	public String toString(){
+		return map + ":" + instanceId;
+	}
+
 }

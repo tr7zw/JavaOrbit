@@ -12,4 +12,8 @@ public class GateTarget {
 	private int x;
 	private int y;
 	
+	public Location getLocation(){
+		return new Location(Server.getInstance().getMapManager().getInstance(map), x, y);
+	}
+
 }

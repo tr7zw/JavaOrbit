@@ -14,6 +14,7 @@ public class PacketPlayInMove extends PacketPlayIn{
 	public PacketPlayInMove(String data) {
 		super(data);
 		//1|1984|2115|1978|1947|485
+		//1|982|1105|1000|1000  2009 Client
 		String[] ar = data.split("\\|");
 		targetPosX = Integer.parseInt(ar[1]);
 		targetPosY = Integer.parseInt(ar[2]);

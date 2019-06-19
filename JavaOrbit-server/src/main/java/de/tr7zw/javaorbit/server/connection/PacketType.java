@@ -41,7 +41,7 @@ public enum PacketType {
 	//IN
 LOGIN(Direction.IN, "LOGIN|", PacketPlayInLogin.class),
 PING(Direction.IN, "PNG", PacketPlayInPing.class),
-JUMP(Direction.IN, "j|", PacketPlayInJump.class),
+JUMP(Direction.IN, "j", PacketPlayInJump.class),
 MOVE(Direction.IN, "1|", PacketPlayInMove.class),
 READY(Direction.IN, "RDY|", PacketPlayInReady.class),
 SETTING(Direction.IN, "7|", PacketPlayInClientSetting.class),

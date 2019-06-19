@@ -210,6 +210,14 @@ public class Player implements EntityPlayer{
 		updatePlayer();
 	}
 	
+	public void warp(Location targetLocation){
+		boolean sameMap = targetLocation.getInstance().equals(getLocation().getInstance());
+		MapManager manager = Server.getInstance().getMapManager();
+		if(sameMap)
+			manager.enterMap(this, Maps.QUESTIONMARK, 1000, 1000);
+		manager.enterMapInstance(this, targetLocation.getInstance(), targetLocation.getX(), targetLocation.getY());
+	}
+
 	public void refreshPlayer() {
 		Maps map = getLocation().getInstance().getMap();
 		int posX = getLocation().getX();

@@ -12,8 +12,7 @@ public class PacketInAdminTP extends PacketPlayIn{
 	@Override
 	public void onRecieve(Player player) {
 		try {
-			player.setLocation(player.getTargetLocation());
-			player.refreshPlayer();
+			player.warp(player.getTargetLocation());
 		}catch(Exception ex) {
 			player.sendMessage("Rank not found!");
 		}

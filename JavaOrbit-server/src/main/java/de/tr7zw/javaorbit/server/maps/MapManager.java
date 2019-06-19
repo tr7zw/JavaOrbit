@@ -19,6 +19,25 @@ public class MapManager {
 		return maps.get(map);
 	}
 	
+	public void enterMapInstance(Player player, MapInstance map, int positionX, int positionY) {
+		maps.values().forEach(inst -> inst.removeLiving(player));
+		//player.getConnection().send("R", ""+player.getSession().getUserId());
+		if(player.getLocation() == null) {
+			player.setLocation(new Location(map, positionX, positionY));
+		}else {
+			player.getLocation().setInstance(map);
+			player.getLocation().setX(positionX);
+			player.getLocation().setY(positionY);
+		}
+		player.setPlayerView(new PlayerView());
+		player.sendPacket(new PacketPlayOutSetMap(map.getMap()));
+		player.updatePlayer();
+		player.sendPacket(new PacketPlayOutSetDrones(player.getSession().getUserId()));
+		player.getConnection().send("f|C|" + player.getSession().getUserId() + "|10|3||" + player.getName() + "|1500|6000|1|1|1|0|0|0| 0|n|d|1|3/2-25-25,3/4-25-25-25-25,3/2-25-25|");
+		player.getConnection().send("0|m|" + map.getMap().getId() + "|" + (int)player.getLocation().getX() + "|" + (int)player.getLocation().getY());
+		map.addPlayer(player);
+	}
+
 	public void enterMap(Player player, Maps map, int positionX, int positionY) {
 		maps.values().forEach(inst -> inst.removeLiving(player));
 		MapInstance instance = getInstance(map);

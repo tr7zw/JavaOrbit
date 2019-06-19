@@ -11,7 +11,7 @@ public class PacketInAdminPos extends PacketPlayIn{
 
 	@Override
 	public void onRecieve(Player player) {
-		player.sendMessage(player.getLocation().getX() + ";" + player.getLocation().getY());
+		player.sendMessage(player.getLocation().toString());
 	}
 
 }
