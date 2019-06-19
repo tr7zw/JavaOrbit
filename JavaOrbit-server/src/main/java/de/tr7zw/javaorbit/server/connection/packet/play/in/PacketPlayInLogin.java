@@ -16,7 +16,8 @@ public class PacketPlayInLogin extends PacketPlayIn{
 		String[] ar = data.split("\\|");
 		userId = Integer.parseInt(ar[1]);
 		sessionToken = ar[2];
-		version = ar[3];
+		if(ar.length >= 4)
+			version = ar[3];
 	}
 
 	@Override

@@ -76,7 +76,11 @@ public class PlayerConnection implements Runnable{
 					//continue;
 				}
 				for(String data : message.split("" + (char)0x00)){
-					parsePacket(data);
+					try{
+						parsePacket(data);
+					}catch(Exception ex){
+						ex.printStackTrace();
+					}
 				}
 			} catch (IOException e) {
 				if(socket.isClosed())break;

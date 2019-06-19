@@ -10,8 +10,8 @@ public class ConnectionListener implements Runnable{
 
 	private ServerSocket serverSocket;
 	
-	public ConnectionListener() throws IOException{
-		serverSocket = new ServerSocket(8080);
+	public ConnectionListener(int port) throws IOException{
+		serverSocket = new ServerSocket(port);
 	}
 
 	@Override

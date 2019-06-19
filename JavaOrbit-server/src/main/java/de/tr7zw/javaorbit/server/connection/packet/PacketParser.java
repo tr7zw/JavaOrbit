@@ -17,7 +17,7 @@ public class PacketParser {
 		try {
 			return (Packet) type.getHandlerClass().getConstructors()[0].newInstance(data);
 		} catch (Exception e) {
-			log.log(Level.SEVERE, "Error while parsing Packet!", e);
+			log.log(Level.SEVERE, "Error while parsing Packet of type '" + type + "' with the data '" + data + "'!", e);
 		}
 		return null;
 	}
