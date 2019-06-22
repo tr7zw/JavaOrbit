@@ -17,6 +17,7 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnSt
 import de.tr7zw.javaorbit.server.enums.Gate;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Station;
+import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.enums.collectables.Collectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityCollectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
@@ -118,7 +119,18 @@ public class MapInstance {
 			player.sendPacket(new PacketPlayOutSpawnGate(gate.getId(), gate.getGate(), gate.getLocation().getX(), gate.getLocation().getY()));
 		}
 	}
-	
+
+	public void sendContextPacketVersion(Player player, Version targetVersion, PacketOut packet) {
+		HashSet<Player> sendList = new HashSet<>();
+		sendList.add(player);
+		player.getPlayerView().getViewLiving().stream().filter(liv -> liv instanceof Player).filter(p -> ((Player)p).getConnection().getVersion().equals(targetVersion)).forEach(liv -> sendList.add((Player) liv));
+		if(player.getPlayerView().getSelected() instanceof Player && ((Player)player.getPlayerView().getSelected()).getConnection().getVersion().equals(targetVersion))
+			sendList.add((Player) player.getPlayerView().getSelected());
+		for(Player p : sendList) {
+			p.sendPacket(packet);
+		}
+	}
+
 	public void sendContextPacket(Player player, PacketOut packet) {
 		HashSet<Player> sendList = new HashSet<>();
 		sendList.add(player);

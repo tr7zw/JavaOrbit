@@ -11,6 +11,7 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShootLa
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnShip;
 import de.tr7zw.javaorbit.server.enums.Ammo;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
+import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
 import de.tr7zw.javaorbit.server.player.Player;
 import de.tr7zw.javaorbit.server.player.PlayerView;
@@ -48,12 +49,14 @@ public class InstanceThread extends Thread{
 		if(player.getPlayerView().isAttacking() && player.getPlayerView().getSelected() != null && serverTick % tickrate == 0) {
 			player.getPlayerView().setWasAttacking(true);
 			EntityLiving target = player.getPlayerView().getSelected();
-			instance.sendContextPacket(player, new PacketPlayOutShootLaser(player.getId(), target.getId(), Ammo.USB100, true, true));
+			instance.sendContextPacketVersion(player, Version.REVOLUTION2D, new PacketPlayOutShootLaser(player.getId(), target.getId(), Ammo.USB100, true, true));
+			instance.sendContextPacketVersion(player, Version.REVOLUTION2D, new PacketPlayOutShootLaser(player.getId(), target.getId(), Ammo.USB100, null, null));
 			player.sendPacket(new PacketPlayOutShipData(target.getId(), target.getName(), target.getShip().getShield(), target.getShip().getMaxShield(), target.getShip().getHp(), target.getShip().getMaxHp()));
 		}
 
 		if(!player.getPlayerView().isAttacking() && player.getPlayerView().isWasAttacking()) {
 			player.getLocation().getInstance().sendContextPacket(player, new PacketPlayOutLaserStop(player.getId(), player.getPlayerView().getSelectedId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
+			player.getConnection().send("0|F");
 			player.getPlayerView().setWasAttacking(false);
 		}
 	}

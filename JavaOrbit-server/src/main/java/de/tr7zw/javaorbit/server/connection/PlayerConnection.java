@@ -17,6 +17,7 @@ import de.tr7zw.javaorbit.server.connection.packet.PacketPlayIn;
 import de.tr7zw.javaorbit.server.connection.packet.chat.in.PacketChatInInit;
 import de.tr7zw.javaorbit.server.connection.packet.PacketParser;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLogin;
+import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
 import lombok.NonNull;
@@ -41,6 +42,8 @@ public class PlayerConnection implements Runnable{
 	private Player player;
 	@Getter
 	private ChatUser chatUser;
+	@Getter
+	private Version version;
 
 	public PlayerConnection(@NonNull Socket socket) throws IOException {
 		this.id = ID_COUNTER.incrementAndGet();
@@ -147,6 +150,8 @@ public class PlayerConnection implements Runnable{
 			if(packet instanceof PacketPlayInLogin) {
 				PacketPlayInLogin login = (PacketPlayInLogin) packet;
 				player = new Player(this, new Session(login.getUserId(), login.getSessionToken(), login.getVersion())); 
+				version = Version.getVersion(login.getVersion());
+				log.log(Level.INFO, "Player '" + player.getName() + "' connected with version: " + version);
 				//TODO: Validate session
 				player.sendLogin();
 				return;

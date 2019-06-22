@@ -21,6 +21,7 @@ import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelect;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectAmmo;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectRocket;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectShip;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectShipRetro;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInTech;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminBomb;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminCollectable;
@@ -55,6 +56,7 @@ LOGOUT(Direction.IN, "l|", PacketPlayInLogout.class),
 LOGOUT_CANCEL(Direction.IN, "o|", PacketPlayInLogoutCancel.class),
 BUY(Direction.IN, "5|", PacketPlayInBuy.class),
 SELECT_SHIP(Direction.IN, "SEL|", PacketPlayInSelectShip.class),
+SELECT_SHIP_RETRO(Direction.IN, "L|", PacketPlayInSelectShipRetro.class),
 SELECT(Direction.IN, "S|", PacketPlayInSelect.class),
 TECH(Direction.IN, "TX|", PacketPlayInTech.class),
 
