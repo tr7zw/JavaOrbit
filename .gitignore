@@ -10,3 +10,4 @@
 .vscode/settings.json
 .settings/org.eclipse.m2e.core.prefs
 JavaOrbit-server/.factorypath
+target/javadoc-bundle-options/javadoc-options-javadoc-resources.xml

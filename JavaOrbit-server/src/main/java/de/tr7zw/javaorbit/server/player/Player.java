@@ -111,6 +111,7 @@ public class Player implements EntityPlayer{
 		send = send.replace("\r\n", "" + (char)0x00);
 		connection.send(send);
 		
+		connection.send("0|A|ADM|CLI|1");
 		sendMessage("Welcome on JavaOrbit");
 		Server.getInstance().getMapManager().enterMap(this, getLocation().getInstance().getMap(), getLocation().getX(), getLocation().getY());
 
