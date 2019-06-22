@@ -30,7 +30,7 @@ public class PacketPlayInMove extends PacketPlayIn{
 		player.setMoving(true);
 		player.setStartLocation(player.getLocation().clone());
 		int distance = player.getLocation().distance(player.getTargetLocation());
-		int time = distance / player.getSpeed() * 1080; //At least while testing 1080 was fitting the clients speed
+		int time = distance / player.getShip().getSpeed() * 1080; //At least while testing 1080 was fitting the clients speed
 		if(time == 0)time = 1000;
 		player.setMoveTime(time);
 		player.setMovingStartTime(System.currentTimeMillis());

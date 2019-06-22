@@ -47,7 +47,6 @@ public class Player implements EntityPlayer{
 	private Clan clan = new Clan(1, "Admins", "Admin");
 	@Setter private int viewDistance = 2000;
 	private Rings rings = Rings.PYRAMIDE;
-	private int speed = 400;
 	private PlayerData playerData = new PlayerData();
 	private PlayerShip playerShip = new PlayerShip();
 
