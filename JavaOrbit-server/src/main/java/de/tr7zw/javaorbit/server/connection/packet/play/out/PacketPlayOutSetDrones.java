@@ -9,10 +9,11 @@ import lombok.Getter;
 public class PacketPlayOutSetDrones extends PacketOut{
 	
 	private int id;
+	private String formation;
 	
 	@Override
 	public StringBuilder buildData() {
-		return new StringBuilder("0|n|d|").append(id).append("|").append("3/2-25-25,3/4-25-25-25-25,3/2-25-25"); //TODO: generate formations
+		return new StringBuilder("0|n|d|").append(id).append("|").append(formation);
 	}
 
 }

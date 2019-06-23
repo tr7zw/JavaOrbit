@@ -19,6 +19,7 @@ import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Station;
 import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.enums.collectables.Collectable;
+import de.tr7zw.javaorbit.server.maps.entities.Entity;
 import de.tr7zw.javaorbit.server.maps.entities.EntityCollectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
@@ -131,12 +132,21 @@ public class MapInstance {
 		}
 	}
 
-	public void sendContextPacket(Player player, PacketOut packet) {
+	public void sendContextPacket(Entity entity, PacketOut packet) {
 		HashSet<Player> sendList = new HashSet<>();
-		sendList.add(player);
-		player.getPlayerView().getViewLiving().stream().filter(liv -> liv instanceof Player).forEach(liv -> sendList.add((Player) liv));
-		if(player.getPlayerView().getSelected() instanceof Player)
-			sendList.add((Player) player.getPlayerView().getSelected());
+		if(entity instanceof Player){
+			Player player = (Player)entity;
+			sendList.add(player);
+			player.getPlayerView().getViewLiving().stream().filter(liv -> liv instanceof Player).forEach(liv -> sendList.add((Player) liv));
+			if(player.getPlayerView().getSelected() instanceof Player)
+				sendList.add((Player) player.getPlayerView().getSelected());
+		}else{
+			for(Player player : getPlayers().values()){
+				if(player.getPlayerView().getViewLiving().contains(entity))
+					sendList.add(player);
+			}
+		}
+		
 		for(Player p : sendList) {
 			p.sendPacket(packet);
 		}

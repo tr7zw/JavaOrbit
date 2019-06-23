@@ -9,10 +9,11 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipMov
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShootLaser;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnShip;
-import de.tr7zw.javaorbit.server.enums.Ammo;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
 import de.tr7zw.javaorbit.server.enums.Version;
+import de.tr7zw.javaorbit.server.maps.entities.EntityAI;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
+import de.tr7zw.javaorbit.server.npc.EntityNPC;
 import de.tr7zw.javaorbit.server.player.Player;
 import de.tr7zw.javaorbit.server.player.PlayerView;
 import lombok.NonNull;
@@ -32,6 +33,10 @@ public class InstanceThread extends Thread{
 			serverTick++;
 			for(EntityLiving living : instance.getLivingEntities().values()) {
 				updatePosition(living);//Update position
+				if(serverTick % 5 == 0 && living instanceof EntityNPC){
+					((EntityAI)living).updateAi();
+					updateCombatAI((EntityNPC) living);
+				}	
 			}
 			for(Player player : instance.getPlayers().values()) {//Playertick
 				updateViewdistancePlayer(player);
@@ -42,6 +47,19 @@ public class InstanceThread extends Thread{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	private void updateCombatAI(EntityNPC entity) {
+		if(entity.getTarget() != null && serverTick % tickrate == 0) {
+			entity.setWasAttacking(true);
+			EntityLiving target = entity.getTarget();
+			instance.sendContextPacket(entity, new PacketPlayOutShootLaser(entity.getId(), target.getId(), entity.getAmmo(), null, null));
+		}
+
+		if(entity.isOutOfReach() && entity.isWasAttacking()) {
+			entity.getLocation().getInstance().sendContextPacket(entity, new PacketPlayOutLaserStop(entity.getId(), entity.getTarget().getId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
+			entity.setWasAttacking(false);
 		}
 	}
 
@@ -103,7 +121,7 @@ public class InstanceThread extends Thread{
 					if(player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
 						view.getViewLiving().add(other);
 						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getLaserLook(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), false, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
-						player.sendPacket(new PacketPlayOutSetDrones(other.getId()));
+						player.sendPacket(new PacketPlayOutSetDrones(other.getId(), other.getDroneFormationString()));
 						player.sendPacket(new PacketPlayOutPermanentTitle(other.getId(), other.getTitle()));
 					}
 				}

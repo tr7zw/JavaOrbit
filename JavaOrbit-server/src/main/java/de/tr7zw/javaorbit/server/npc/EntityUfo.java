@@ -24,4 +24,5 @@ public class EntityUfo extends EntityNPC {
 	public Ammo getAmmo() {
 		return Ammo.SANEJIEWS;
 	}
+
 }

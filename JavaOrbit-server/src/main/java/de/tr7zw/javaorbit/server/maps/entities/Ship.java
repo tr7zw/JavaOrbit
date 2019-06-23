@@ -16,5 +16,6 @@ public class Ship {
 	@Getter @Setter private int shield = 10000;
 	@Getter @Setter private int maxShield = 10000;
 	@Getter @Setter private int speed = 400;
+	@Getter @Setter private String droneFormationString = "3/2-25-25,3/4-25-25-25-25,3/2-25-25";
 	
 }

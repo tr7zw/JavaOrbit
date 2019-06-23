@@ -21,6 +21,7 @@ public interface EntityLiving extends Entity{
 	public Rings getRings();
 	public Clan getClan();
 	public void setLocation(Location location);
+	public String getDroneFormationString();
 	//Moving
 	public Location getTargetLocation();
 	public boolean isMoving();

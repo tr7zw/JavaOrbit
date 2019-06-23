@@ -36,7 +36,7 @@ public class MapManager {
 		player.setPlayerView(new PlayerView());
 		player.sendPacket(new PacketPlayOutSetMap(map.getMap()));
 		player.updatePlayer();
-		player.sendPacket(new PacketPlayOutSetDrones(player.getSession().getUserId()));
+		player.sendPacket(new PacketPlayOutSetDrones(player.getSession().getUserId(), player.getDroneFormationString()));
 		player.getConnection().send("f|C|" + player.getSession().getUserId() + "|10|3||" + player.getName() + "|1500|6000|1|1|1|0|0|0| 0|n|d|1|3/2-25-25,3/4-25-25-25-25,3/2-25-25|");
 		player.getConnection().send("0|m|" + map.getMap().getId() + "|" + (int)player.getLocation().getX() + "|" + (int)player.getLocation().getY());
 		map.addPlayer(player);
@@ -58,7 +58,7 @@ public class MapManager {
 		player.setPlayerView(new PlayerView());
 		player.sendPacket(new PacketPlayOutSetMap(map));
 		player.updatePlayer();
-		player.sendPacket(new PacketPlayOutSetDrones(player.getSession().getUserId()));
+		player.sendPacket(new PacketPlayOutSetDrones(player.getSession().getUserId(), player.getDroneFormationString()));
 		player.getConnection().send("f|C|" + player.getSession().getUserId() + "|10|3||" + player.getName() + "|1500|6000|1|1|1|0|0|0| 0|n|d|1|3/2-25-25,3/4-25-25-25-25,3/2-25-25|");
 		player.getConnection().send("0|m|" + map.getId() + "|" + (int)player.getLocation().getX() + "|" + (int)player.getLocation().getY());
 		instance.addPlayer(player);
