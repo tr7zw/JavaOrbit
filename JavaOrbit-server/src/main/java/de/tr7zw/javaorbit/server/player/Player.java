@@ -48,7 +48,7 @@ public class Player implements EntityPlayer{
 	private Faction faction = Faction.MMO;
 	private Rank rank = Rank.ADMIN;
 	private Title title = Title.NONE;
-	private Clan clan = new Clan(1, "Admins", "Admin");
+	private Clan clan = null;
 	@Setter private int viewDistance = 2000;
 	private Rings rings = Rings.PYRAMIDE;
 	private PlayerData playerData = new PlayerData();
@@ -210,6 +210,21 @@ public class Player implements EntityPlayer{
 	
 	public void changeRank(Rank rank) {
 		this.rank = rank;
+		updatePlayer();
+	}
+
+	public void changeFaction(Faction faction) {
+		this.faction = faction;
+		updatePlayer();
+	}
+
+	public void changeClan(Clan clan) {
+		this.clan = clan;
+		updatePlayer();
+	}
+
+	public void changeName(String name) {
+		this.name = name;
 		updatePlayer();
 	}
 	

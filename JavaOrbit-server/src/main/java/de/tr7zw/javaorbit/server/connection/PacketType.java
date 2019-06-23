@@ -23,14 +23,7 @@ import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectRoc
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectShip;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectShipRetro;
 import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInTech;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminBomb;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminCollectable;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminPos;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminRank;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminShip;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminSpawn;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminTP;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminWarp;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -62,6 +55,8 @@ TECH(Direction.IN, "TX|", PacketPlayInTech.class),
 
 //IN Admin
 ADMIN_RANK(Direction.IN, "/RANK", PacketInAdminRank.class),
+ADMIN_COMPANY(Direction.IN, "/COMP", PacketInAdminCompany.class),
+ADMIN_CLAN(Direction.IN, "/CLAN", PacketInAdminClan.class),
 ADMIN_WARP(Direction.IN, "/WARP", PacketInAdminWarp.class),
 ADMIN_SHIP(Direction.IN, "/SHIP", PacketInAdminShip.class),
 ADMIN_TP(Direction.IN, "/TP", PacketInAdminTP.class),
@@ -69,6 +64,7 @@ ADMIN_SPAWN(Direction.IN, "/SPAWN", PacketInAdminSpawn.class),
 ADMIN_SPAWN_COLLECTABLE(Direction.IN, "/BOX", PacketInAdminCollectable.class),
 ADMIN_SPAWN_BOMB(Direction.IN, "/BOMB", PacketInAdminBomb.class),
 ADMIN_POS(Direction.IN, "/POS", PacketInAdminPos.class),
+ADMIN_NAME(Direction.IN, "/NAME", PacketInAdminName.class),
 
 //Chat
 CHAT_INIT(Direction.IN, "bu%", PacketChatInInit.class),

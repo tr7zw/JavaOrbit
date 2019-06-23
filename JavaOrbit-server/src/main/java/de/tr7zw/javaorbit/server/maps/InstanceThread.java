@@ -102,7 +102,7 @@ public class InstanceThread extends Thread{
 				} else { //Can't see player
 					if(player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
 						view.getViewLiving().add(other);
-						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getLaserLook(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), true, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
+						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getLaserLook(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), false, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
 						player.sendPacket(new PacketPlayOutSetDrones(other.getId()));
 						player.sendPacket(new PacketPlayOutPermanentTitle(other.getId(), other.getTitle()));
 					}

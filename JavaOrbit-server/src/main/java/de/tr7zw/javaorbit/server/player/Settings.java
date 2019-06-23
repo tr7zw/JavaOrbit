@@ -30,8 +30,8 @@ class Settings {
 	private String SLOTMENU_POSITION = "313,451";
 	private short SLOTMENU_ORDER = 0;
 	private short CLIENT_RESOLUTION = 3;*/
-	
-    private String Set = "1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|0|1|1|0|0|1|1|1|1";
+    
+    private String Set = "1|1|1|1|1|1|1|1|1|1|1|1|1|1|1|0|0|1|1|1|0|1|1|1|1";
     private String MinimapScale = "4|8";
     private String ResizableWindows = "4|5,267,168,20,351,241";
     private boolean DisplayPlayerNames = true;
