@@ -13,7 +13,7 @@ public class PacketPlayOutLaserStop extends PacketOut{
 	
 	@Override
 	public StringBuilder buildData() {
-		return new StringBuilder("0|G")
+		return new StringBuilder("0|G|")
 				.append(id).append("|")
 				.append(enemy).append("|");
 	}

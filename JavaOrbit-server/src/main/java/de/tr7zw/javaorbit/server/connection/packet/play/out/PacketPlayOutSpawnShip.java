@@ -3,6 +3,7 @@ package de.tr7zw.javaorbit.server.connection.packet.play.out;
 import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
+import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
 import de.tr7zw.javaorbit.server.enums.ShipType;
@@ -16,6 +17,7 @@ public class PacketPlayOutSpawnShip extends PacketOut{
 
 	private int id;
 	private ShipType ship;
+	private LaserLook laserLook;
 	private String name;
 	private int posX;
 	private int posY;
@@ -32,7 +34,7 @@ public class PacketPlayOutSpawnShip extends PacketOut{
 		return new StringBuilder("0|C|")
 				.append(id).append("|")
 				.append(ship.getId()).append("|")
-				.append("0").append("|")//Laserlook
+				.append(laserLook.getId()).append("|")//Laserlook
 				.append(clan != null ? clan.getTag() : "").append("|")
 				.append(name).append("|")
 				.append(posX).append("|")

@@ -2,6 +2,7 @@ package de.tr7zw.javaorbit.server.connection.packet.play.out;
 
 import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
+import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
@@ -30,7 +31,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut{
 	private int clanId;
 	private int maxLaser;
 	private int maxRocket;
-	private int laserState;
+	private LaserLook laserLook;
 	private boolean premium;
 	private int exp;
 	private int honour;
@@ -63,7 +64,7 @@ public class PacketPlayOutPlayerInfo extends PacketOut{
 				.append(clanId).append("|")
 				.append(maxLaser).append("|")
 				.append(maxRocket).append("|")
-				.append(laserState).append("|")
+				.append(laserLook.getId()).append("|")
 				.append(toEnum(premium)).append("|")
 				.append(exp).append("|")
 				.append(honour).append("|")

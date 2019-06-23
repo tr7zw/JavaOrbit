@@ -11,6 +11,8 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPlayerI
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDrones;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetMap;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShowMessage;
+import de.tr7zw.javaorbit.server.enums.Ammo;
+import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
@@ -39,11 +41,13 @@ public class Player implements EntityPlayer{
 	@Setter private boolean moving = false;
 	@Setter private int moveTime = 0;
 	@Setter private Location startLocation = location;
+	private Ammo ammo = Ammo.USB100;
 	private Settings settings = new Settings();
 	@Setter private PlayerView playerView = new PlayerView();
+	private LaserLook laserLook = LaserLook.FULL_ELITE;
 	private Faction faction = Faction.MMO;
 	private Rank rank = Rank.ADMIN;
-	private Title title = Title.ADMIN_TITLE;
+	private Title title = Title.NONE;
 	private Clan clan = new Clan(1, "Admins", "Admin");
 	@Setter private int viewDistance = 2000;
 	private Rings rings = Rings.PYRAMIDE;
@@ -237,7 +241,7 @@ public class Player implements EntityPlayer{
 	
 	public void updatePlayer() {
 		sendPacket(new PacketPlayOutPlayerInfo(session.getUserId(), getName(), getPlayerShip().getType(), getPlayerShip().getSpeed(), getPlayerShip().getShield(), getPlayerShip().getMaxShield(), getPlayerShip().getHp(), getPlayerShip().getMaxHp(), getPlayerShip().getCargo(), getPlayerShip().getMaxCargo(), (int)getLocation().getX(), (int)getLocation().getY(), getLocation().getInstance().getMap(), faction,
-				1, 10000, 10000, 1, getPlayerData().isPremium(), getPlayerData().getExp(), getPlayerData().getHonor(), getPlayerData().getLevel(), getPlayerData().getCredits(), getPlayerData().getUridium(), getPlayerData().getJackpot(), rank, clan != null ? clan.getTag() : "", rings, false));
+				1, 10000, 10000, LaserLook.FULL_ELITE, getPlayerData().isPremium(), getPlayerData().getExp(), getPlayerData().getHonor(), getPlayerData().getLevel(), getPlayerData().getCredits(), getPlayerData().getUridium(), getPlayerData().getJackpot(), rank, clan != null ? clan.getTag() : "", rings, false));
 		sendPacket(new PacketPlayOutSetDrones(getSession().getUserId()));
 		sendPacket(new PacketPlayOutPermanentTitle(session.getUserId(), title));
 	}

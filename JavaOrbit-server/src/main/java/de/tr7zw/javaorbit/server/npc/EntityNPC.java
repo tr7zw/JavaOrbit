@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.connection.Faction;
+import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
 import de.tr7zw.javaorbit.server.enums.Title;
@@ -33,6 +34,7 @@ public abstract class EntityNPC implements EntityAI{
 	private Rings rings = Rings.NONE;
 	private Faction faction = Faction.NONE;
 	private Title title = Title.NONE;
+	private LaserLook laserLook = LaserLook.NORMAL;
 	private Clan clan;
 
 	private static class Counter{

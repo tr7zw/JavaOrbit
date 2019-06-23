@@ -3,17 +3,12 @@ package de.tr7zw.javaorbit.server.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
-public enum Ammo {
-LCB10(0),
-MCB25(1),
-MCB50(2),
-USB100(3),
-SAB50(4),
-SANEJIEWS(5),
-RSB75(6)
-
-;
+@AllArgsConstructor
+public enum LaserLook {
+NORMAL(1),
+ELITE(2),
+FULL_ELITE(3),
+	;
 	private int id;
 }

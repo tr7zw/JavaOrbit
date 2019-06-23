@@ -49,14 +49,14 @@ public class InstanceThread extends Thread{
 		if(player.getPlayerView().isAttacking() && player.getPlayerView().getSelected() != null && serverTick % tickrate == 0) {
 			player.getPlayerView().setWasAttacking(true);
 			EntityLiving target = player.getPlayerView().getSelected();
-			instance.sendContextPacketVersion(player, Version.REVOLUTION2D, new PacketPlayOutShootLaser(player.getId(), target.getId(), Ammo.USB100, true, true));
-			instance.sendContextPacketVersion(player, Version.REVOLUTION2D, new PacketPlayOutShootLaser(player.getId(), target.getId(), Ammo.USB100, null, null));
+			instance.sendContextPacketVersion(player, Version.REVOLUTION2D, new PacketPlayOutShootLaser(player.getId(), target.getId(), player.getAmmo(), true, true));
+			instance.sendContextPacketVersion(player, Version.RETRO, new PacketPlayOutShootLaser(player.getId(), target.getId(), player.getAmmo(), null, null));
+			player.getConnection().send("0|H|10000|10000|" + target.getId() + "|1000");
 			player.sendPacket(new PacketPlayOutShipData(target.getId(), target.getName(), target.getShip().getShield(), target.getShip().getMaxShield(), target.getShip().getHp(), target.getShip().getMaxHp()));
 		}
 
 		if(!player.getPlayerView().isAttacking() && player.getPlayerView().isWasAttacking()) {
 			player.getLocation().getInstance().sendContextPacket(player, new PacketPlayOutLaserStop(player.getId(), player.getPlayerView().getSelectedId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
-			player.getConnection().send("0|F");
 			player.getPlayerView().setWasAttacking(false);
 		}
 	}
@@ -102,7 +102,7 @@ public class InstanceThread extends Thread{
 				} else { //Can't see player
 					if(player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
 						view.getViewLiving().add(other);
-						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), true, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
+						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getLaserLook(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), true, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
 						player.sendPacket(new PacketPlayOutSetDrones(other.getId()));
 						player.sendPacket(new PacketPlayOutPermanentTitle(other.getId(), other.getTitle()));
 					}

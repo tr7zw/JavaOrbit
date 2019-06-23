@@ -2,6 +2,8 @@ package de.tr7zw.javaorbit.server.maps.entities;
 
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.connection.Faction;
+import de.tr7zw.javaorbit.server.enums.Ammo;
+import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
 import de.tr7zw.javaorbit.server.enums.Title;
@@ -11,6 +13,8 @@ public interface EntityLiving extends Entity{
 
 	public String getName();
 	public Ship getShip();
+	public LaserLook getLaserLook();
+	public Ammo getAmmo();
 	public Faction getFaction();
 	public Title getTitle();
 	public Rank getRank();
