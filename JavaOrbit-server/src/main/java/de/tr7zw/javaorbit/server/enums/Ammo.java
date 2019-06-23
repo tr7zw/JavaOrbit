@@ -16,4 +16,11 @@ RSB75(6)
 
 ;
 	private int id;
+
+	public static Ammo fromId(int targetId){
+		for(Ammo a : values())
+			if(a.id == targetId)
+				return a;
+		return LCB10;
+	}
 }

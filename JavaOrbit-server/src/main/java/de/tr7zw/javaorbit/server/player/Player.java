@@ -41,7 +41,7 @@ public class Player implements EntityPlayer{
 	@Setter private boolean moving = false;
 	@Setter private int moveTime = 0;
 	@Setter private Location startLocation = location;
-	private Ammo ammo = Ammo.USB100;
+	@Setter private Ammo ammo = Ammo.USB100;
 	private Settings settings = new Settings();
 	@Setter private PlayerView playerView = new PlayerView();
 	private LaserLook laserLook = LaserLook.FULL_ELITE;
