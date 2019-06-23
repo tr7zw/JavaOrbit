@@ -94,7 +94,6 @@ public class Player implements EntityPlayer{
 		sendPacket(new PacketPlayOutSetMap(getLocation().getInstance().getMap()));
 		sendPacket(new PacketPlayOutSetDrones(getSession().getUserId()));
 		String send = 
-				"f|C|1|" + getPlayerShip().getType().getId() + "|3||" + getName() + "|900|1700|1|1|1|0|0|0| 0|n|d|1|3/2-25-25,3/4-25-25-25-25,3/2-25-25|\r\n" + 
 				"0|1|-2|5200|6000|687| 0|1|-3|9700|2000|1535| 0|1|-4|17300|9500|3433| 0|1|-5|9100|3000|1942| 0|1|-6|15700|2700|687| 0|1|-7|7800|1700|971| 0|1|-8|7400|9800|1373|\r\n" + 
 				//"0|p|1|1|32|18500|11500\r\n" + 
 				//"0|p|1|" + Portal.BIRTHDAY.getId() + "|32|0|0\r\n" + 

@@ -5,7 +5,9 @@ import java.util.HashMap;
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDrones;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetMap;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.enums.Maps;
+import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
 import de.tr7zw.javaorbit.server.player.Player;
 import de.tr7zw.javaorbit.server.player.PlayerView;
 import lombok.NonNull;
@@ -29,6 +31,8 @@ public class MapManager {
 			player.getLocation().setX(positionX);
 			player.getLocation().setY(positionY);
 		}
+		for(EntityLiving ent : player.getPlayerView().getViewLiving())
+			player.sendPacket(new PacketPlayOutShipRemove(ent.getId()));
 		player.setPlayerView(new PlayerView());
 		player.sendPacket(new PacketPlayOutSetMap(map.getMap()));
 		player.updatePlayer();
@@ -49,6 +53,8 @@ public class MapManager {
 			player.getLocation().setX(positionX);
 			player.getLocation().setY(positionY);
 		}
+		for(EntityLiving ent : player.getPlayerView().getViewLiving())
+			player.sendPacket(new PacketPlayOutShipRemove(ent.getId()));
 		player.setPlayerView(new PlayerView());
 		player.sendPacket(new PacketPlayOutSetMap(map));
 		player.updatePlayer();
