@@ -38,9 +38,10 @@ public abstract class EntityNPC implements EntityAI{
 	private Title title = Title.NONE;
 	private LaserLook laserLook = LaserLook.NORMAL;
 	private Clan clan;
-	private EntityLiving target = null;
+	@Setter private EntityLiving target = null;
 	private boolean outOfReach = true;
 	private boolean wasAttacking = false;
+	private boolean targetInSavezone = false;
 
 	private static class Counter{
 		private static AtomicInteger COUNTER = new AtomicInteger(-1);
@@ -62,17 +63,21 @@ public abstract class EntityNPC implements EntityAI{
 		System.out.println(location);
 		if(target == null){
 			for(Player player : getLocation().getInstance().getPlayers().values()){
-				if(player.getLocation().inDistance(location, 1500)){
+				if(!player.inDemilitarizedZone() && player.getLocation().inDistance(location, 1500)){
 					target = player;
 					break;
 				}
 			}
 		}
 		if(target != null){
-			if(target.getLocation() == null || target.getLocation().getInstance() != location.getInstance() || !target.getLocation().inDistance(location, 2000)){
+			if(target.getLocation() == null || target.getLocation().getInstance() != location.getInstance() || (!wasAttacking && targetInSavezone) || !target.getLocation().inDistance(location, 2000)){
 				target = null;
+				targetInSavezone = false;
 				return;
 			}
+			if(target instanceof Player)
+			targetInSavezone = ((Player)target).inDemilitarizedZone();
+
 			outOfReach = !target.getLocation().inDistance(location, 300);
 			if(!target.getLocation().inDistance(location, 250)){
 				final double angle = Math.toRadians(Math.random() * 360);

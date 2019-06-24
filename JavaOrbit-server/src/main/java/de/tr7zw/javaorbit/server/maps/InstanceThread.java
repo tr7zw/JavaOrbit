@@ -9,7 +9,9 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipMov
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShootLaser;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnShip;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutStatus;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
+import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.maps.entities.EntityAI;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
@@ -40,6 +42,7 @@ public class InstanceThread extends Thread{
 			}
 			for(Player player : instance.getPlayers().values()) {//Playertick
 				updateViewdistancePlayer(player);
+				updatePlayerStatus(player);
 				updateCombat(player);
 			}
 			try {
@@ -57,7 +60,7 @@ public class InstanceThread extends Thread{
 			instance.sendContextPacket(entity, new PacketPlayOutShootLaser(entity.getId(), target.getId(), entity.getAmmo(), null, null));
 		}
 
-		if(entity.isOutOfReach() && entity.isWasAttacking()) {
+		if((entity.isOutOfReach() || entity.isTargetInSavezone()) && entity.isWasAttacking()) {
 			entity.getLocation().getInstance().sendContextPacket(entity, new PacketPlayOutLaserStop(entity.getId(), entity.getTarget().getId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
 			entity.setWasAttacking(false);
 		}
@@ -95,6 +98,21 @@ public class InstanceThread extends Thread{
 				living.getLocation().setY(living.getStartLocation().getY() + offsetY);
 			}
 		}
+	}
+
+	private void updatePlayerStatus(Player player){
+		player.setNextGate(instance.getGateAt(player.getLocation()));
+		player.setInBase(instance.inStation(player.getLocation(), player.getFaction()));
+		Maps map = player.getLocation().getInstance().getMap();
+		int x = player.getLocation().getX();
+		int y = player.getLocation().getY();
+		if(map == Maps.MAP4_4 || map == Maps.MAP4_5){
+			player.setInRadiationZone(x < 0 || y < 0 || x > 42000 || y > 28000);
+		}else{
+			player.setInRadiationZone(x < 0 || y < 0 || x > 21000 || y > 14000);
+		}
+
+		player.sendPacket(new PacketPlayOutStatus(player.getLocation().getX(),player.getLocation().getY(),player.inDemilitarizedZone(), player.isRepairing(), player.isInBase(), player.isInRadiationZone(), player.getNextGate() != null));
 	}
 
 	private void updateViewdistancePlayer(Player player) {

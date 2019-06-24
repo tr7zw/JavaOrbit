@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import de.tr7zw.javaorbit.server.GateTarget;
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.Position;
+import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnCollectable;
@@ -98,6 +99,17 @@ public class MapInstance {
 	
 	public void addGate(EntityGate gate) {
 		gates.put(gate.getId(), gate);
+	}
+
+	public boolean inStation(Location loc, Faction faction){
+		if(faction == Faction.MMO && map != Maps.MAP1_1)return false;
+		if(faction == Faction.EIC && map != Maps.MAP2_1)return false;
+		if(faction == Faction.VRU && map != Maps.MAP3_1)return false;
+		for(Position stat : stations.keySet()){
+			if(loc.inDistance(stat, 800))
+				return true;
+		}
+		return false;
 	}
 
 	public EntityGate getGateAt(Location location){

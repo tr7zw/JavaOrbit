@@ -21,6 +21,10 @@ public class Location implements Cloneable{
 		return Math.abs(Math.pow(x - location.x, 2) + Math.pow(y - location.y, 2)) <= Math.pow(distance, 2);
 	}
 
+	public boolean inDistance(Position position, int distance) {
+		return Math.abs(Math.pow(x - position.getX(), 2) + Math.pow(y - position.getY(), 2)) <= Math.pow(distance, 2);
+	}
+
 	public int distance(Location location) {
 		return (int) Math.sqrt(Math.abs(Math.pow(x - location.x, 2) + Math.pow(y - location.y, 2)));
 	}

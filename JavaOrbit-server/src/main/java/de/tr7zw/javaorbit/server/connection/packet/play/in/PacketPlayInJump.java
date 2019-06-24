@@ -13,7 +13,7 @@ public class PacketPlayInJump extends PacketPlayIn{
 
 	@Override
 	public void onRecieve(Player player) {
-		EntityGate gate = player.getLocation().getInstance().getGateAt(player.getLocation());
+		EntityGate gate = player.getNextGate();
 		if(gate == null) {
 			player.sendMessage("You're not near a jump gate!");
 		}else{

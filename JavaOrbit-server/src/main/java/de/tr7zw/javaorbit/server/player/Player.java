@@ -12,6 +12,7 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDron
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetMap;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShowMessage;
 import de.tr7zw.javaorbit.server.enums.Ammo;
+import de.tr7zw.javaorbit.server.enums.Gate;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Rank;
@@ -19,6 +20,7 @@ import de.tr7zw.javaorbit.server.enums.Rings;
 import de.tr7zw.javaorbit.server.enums.ShipType;
 import de.tr7zw.javaorbit.server.enums.Title;
 import de.tr7zw.javaorbit.server.maps.MapManager;
+import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityPlayer;
 import de.tr7zw.javaorbit.server.maps.entities.PlayerShip;
 import lombok.Getter;
@@ -49,6 +51,10 @@ public class Player implements EntityPlayer{
 	private Rank rank = Rank.ADMIN;
 	private Title title = Title.NONE;
 	private Clan clan = null;
+	@Setter boolean repairing = false;
+	@Setter EntityGate nextGate = null;
+	@Setter boolean inBase = false;
+	@Setter boolean inRadiationZone = false;
 	@Setter private int viewDistance = 2000;
 	private Rings rings = Rings.PYRAMIDE;
 	private PlayerData playerData = new PlayerData();
@@ -273,6 +279,10 @@ public class Player implements EntityPlayer{
 	@Override
 	public String getDroneFormationString() {
 		return "3/2-25-25,3/4-25-25-25-25,3/2-25-25";
+	}
+
+	public boolean inDemilitarizedZone(){
+		return nextGate != null || inBase;
 	}
 
 }
