@@ -10,10 +10,10 @@ public class PacketPlayOutShipData extends PacketOut{
 
 	private int id;
 	private String name;
-	private int shield;
-	private int maxShield;
 	private int hp;
 	private int maxHp;
+	private int shield;
+	private int maxShield;
 	
 	@Override
 	public StringBuilder buildData() {

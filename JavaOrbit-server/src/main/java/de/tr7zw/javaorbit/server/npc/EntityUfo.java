@@ -15,9 +15,16 @@ public class EntityUfo extends EntityNPC {
 	public static class UFOShip extends Ship {
 		public UFOShip() {
 			setType(ShipType.UFO_BIG);
-			setMaxHp(1000000);
+			setMaxHp(60000);
 			setHp(getMaxHp());
+			setMaxShield(10000);
+			setShield(getMaxShield());
 			setSpeed(200);
+		}
+
+		@Override
+		public int getDps() {
+			return 10000;
 		}
 	}
 

@@ -66,7 +66,7 @@ public class MapInstance {
 		if(map == Maps.MAP1_2){
 			addGate(new EntityGate(Gate.NORMAL, new Location(this, 1000, 1000), new GateTarget(Maps.MAP1_1, 18500,11500)));
 			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 30);
-			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityLordakia::new), 30);	
+			entityTargetAmount.put(new EntityTarget(EntityLordakia.class, EntityLordakia::new), 30);	
 		}
 		thread.start();
 	}

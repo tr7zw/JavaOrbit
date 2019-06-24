@@ -5,6 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.connection.Faction;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipData;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipKilled;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
@@ -70,6 +74,7 @@ public abstract class EntityNPC implements EntityAI{
 
 	@Override
 	public void updateAi() {
+		if(isDead())return;
 		if(target == null){
 			for(Player player : getLocation().getInstance().getPlayers().values()){
 				if(!player.inDemilitarizedZone() && player.getLocation().inDistance(location, 1500)){
@@ -84,6 +89,8 @@ public abstract class EntityNPC implements EntityAI{
 			if(target.getLocation() == null || target.getLocation().getInstance() != location.getInstance() || (!wasAttacking && targetInSavezone) || !target.getLocation().inDistance(location, 1700)){
 				target = null;
 				targetInSavezone = false;
+				if(passive)
+					agressive = false;
 				return;
 			}
 			if(target instanceof Player)
@@ -100,6 +107,59 @@ public abstract class EntityNPC implements EntityAI{
 			moveTo(location.getInstance().getRandomLocation());
 		}
 	}
+
+	@Override
+    public void onAttack(EntityLiving attacker) {
+		if(passive)
+			agressive = true;
+		if(target == null)
+			target = attacker;
+		int dmg = attacker.getShip().getDps();
+		dmg *= 1f-((float)random.nextInt(20)/100f);
+		damage(attacker, dmg);
+		
+    }
+
+    @Override
+    public void damage(EntityLiving attacker, int amount) {
+		int shieldDmg = (int) (getShip().getShieldStrength() * amount);
+		int directDmg = amount - shieldDmg;
+		int newShield = getShip().getShield() - shieldDmg;
+		if(newShield < 0){
+			directDmg += Math.abs(newShield);
+			newShield = 0;
+		}
+		getShip().setShield(newShield);
+		getShip().setHp(Math.max(getShip().getHp()-directDmg, 0));
+		if(getShip().getHp() <= 0){
+			onDeath(attacker);
+		}
+		if(attacker instanceof Player){
+			Player player = (Player) attacker;
+			player.getConnection().send("0|H|" + Math.max(1, ship.getShield()) + "|" + getShip().getHp() + "|" + this.getId() + "|" + amount);
+			player.sendPacket(new PacketPlayOutShipData(getId(), getName(),  getShip().getHp(), getShip().getMaxHp(), getShip().getShield(), getShip().getMaxShield()));
+			if(isDead()){
+				player.getPlayerView().setAttacking(false);
+				player.getPlayerView().setSelected(null);
+			}
+		}
+    }
+
+	public boolean isDead(){
+		return getShip().getHp() <= 0;
+	}
+
+	@Override
+    public void onDeath(EntityLiving attacker) {
+		outOfReach = true;
+		moving = false;
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutShipKilled(this.getId()));
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutLaserStop(attacker.getId(), this.getId()));
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutLaserStop(this.getId(), attacker.getId()));
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutShipRemove(this.getId()));
+		getLocation().getInstance().removeLiving(this);
+    }
+
 
 }
 

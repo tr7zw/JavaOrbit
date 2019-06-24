@@ -21,6 +21,11 @@ public class EntityStreuner extends EntityNPC {
             setShield(getMaxShield());
 			setSpeed(280);
 		}
+
+		@Override
+		public int getDps() {
+			return 20;
+		}
 	}
 
 	@Override

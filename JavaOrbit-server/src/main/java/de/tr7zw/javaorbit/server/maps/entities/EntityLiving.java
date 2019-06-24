@@ -22,6 +22,10 @@ public interface EntityLiving extends Entity{
 	public Clan getClan();
 	public void setLocation(Location location);
 	public String getDroneFormationString();
+	public void onAttack(EntityLiving attacker);
+	public void damage(EntityLiving attacker, int amount);
+	public void onDeath(EntityLiving attacker);
+
 	//Moving
 	public Location getTargetLocation();
 	public boolean isMoving();

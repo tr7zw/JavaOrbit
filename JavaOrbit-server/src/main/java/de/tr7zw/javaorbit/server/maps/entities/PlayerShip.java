@@ -9,5 +9,10 @@ public class PlayerShip extends Ship{
 
 	@Getter @Setter private int maxCargo = 4000;
 	@Getter @Setter private int cargo = 0;
+
+	@Override
+	public int getDps() {
+		return 1000;
+	}
 	
 }

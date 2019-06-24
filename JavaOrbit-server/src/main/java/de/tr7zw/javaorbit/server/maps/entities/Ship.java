@@ -8,14 +8,17 @@ import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class Ship {
+public abstract class Ship {
 
-	@Getter @Setter private ShipType type = ShipType.YAMATO;
+	@Getter @Setter private ShipType type = ShipType.PHOENIX;
 	@Getter @Setter private int hp = 10000;
 	@Getter @Setter private int maxHp = 10000;
 	@Getter @Setter private int shield = 10000;
 	@Getter @Setter private int maxShield = 10000;
 	@Getter @Setter private int speed = 400;
+	@Getter @Setter private float shieldStrength = 0.8f;
 	@Getter @Setter private String droneFormationString = "3/2-25-25,3/4-25-25-25-25,3/2-25-25";
 	
+	public abstract int getDps();
+
 }

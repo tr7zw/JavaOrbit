@@ -25,7 +25,7 @@ public class PacketPlayInSelectShip extends PacketPlayIn{
 		
 		player.getPlayerView().setSelectedId(target.getId());
 		player.getPlayerView().setSelected(target);
-		player.sendPacket(new PacketPlayOutShipData(target.getId(), target.getName(), target.getShip().getShield(), target.getShip().getMaxShield(), target.getShip().getHp(), target.getShip().getMaxHp()));
+		player.sendPacket(new PacketPlayOutShipData(target.getId(), target.getName(),  target.getShip().getHp(), target.getShip().getMaxHp(), target.getShip().getShield(), target.getShip().getMaxShield()));
 		player.getPlayerView().setAttacking(false);
 	}
 

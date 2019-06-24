@@ -60,7 +60,6 @@ public class InstanceThread extends Thread {
 				}
 			}
 			try {
-				long time = System.currentTimeMillis() - start;
 				Thread.sleep(tickwait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -86,8 +85,7 @@ public class InstanceThread extends Thread {
 			EntityLiving target = player.getPlayerView().getSelected();
 			instance.sendContextPacketVersion(player, Version.REVOLUTION2D, new PacketPlayOutShootLaser(player.getId(), target.getId(), player.getAmmo(), true, true));
 			instance.sendContextPacketVersion(player, Version.RETRO, new PacketPlayOutShootLaser(player.getId(), target.getId(), player.getAmmo(), null, null));
-			player.getConnection().send("0|H|10000|10000|" + target.getId() + "|1000");
-			player.sendPacket(new PacketPlayOutShipData(target.getId(), target.getName(), target.getShip().getShield(), target.getShip().getMaxShield(), target.getShip().getHp(), target.getShip().getMaxHp()));
+			player.getPlayerView().getSelected().onAttack(player);
 		}
 
 		if(!player.getPlayerView().isAttacking() && player.getPlayerView().isWasAttacking()) {
