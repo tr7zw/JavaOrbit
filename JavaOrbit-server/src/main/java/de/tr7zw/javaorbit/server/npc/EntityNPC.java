@@ -43,8 +43,10 @@ public abstract class EntityNPC implements EntityAI{
 	private Clan clan;
 	@Setter private EntityLiving target = null;
 	private boolean outOfReach = true;
+	private boolean agressive = false;
 	private boolean wasAttacking = false;
 	private boolean targetInSavezone = false;
+	private boolean passive = false;
 
 	private static class Counter{
 		private static AtomicInteger COUNTER = new AtomicInteger(-1);
@@ -68,11 +70,12 @@ public abstract class EntityNPC implements EntityAI{
 
 	@Override
 	public void updateAi() {
-		System.out.println(location);
 		if(target == null){
 			for(Player player : getLocation().getInstance().getPlayers().values()){
 				if(!player.inDemilitarizedZone() && player.getLocation().inDistance(location, 1500)){
 					target = player;
+					if(!passive)
+						agressive = true;
 					break;
 				}
 			}
@@ -84,7 +87,7 @@ public abstract class EntityNPC implements EntityAI{
 				return;
 			}
 			if(target instanceof Player)
-			targetInSavezone = ((Player)target).inDemilitarizedZone();
+				targetInSavezone = ((Player)target).inDemilitarizedZone();
 
 			outOfReach = !target.getLocation().inDistance(location, 300);
 			if(!target.getLocation().inDistance(location, 250) && (targetLocation == null || !target.getLocation().inDistance(targetLocation, 250))){
@@ -94,7 +97,7 @@ public abstract class EntityNPC implements EntityAI{
 				moveTo(new Location(location.getInstance(), newPosX, newPosY));
 			}
 		} else if(!moving && Math.random() > 0.8){ //Random stroll
-			moveTo(new Location(location.getInstance(), random.nextInt(location.getInstance().getMapWidth()), random.nextInt(location.getInstance().getMapHeight())));
+			moveTo(location.getInstance().getRandomLocation());
 		}
 	}
 

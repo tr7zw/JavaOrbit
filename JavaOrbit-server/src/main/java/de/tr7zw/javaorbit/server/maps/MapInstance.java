@@ -2,6 +2,7 @@ package de.tr7zw.javaorbit.server.maps;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -24,7 +25,9 @@ import de.tr7zw.javaorbit.server.maps.entities.Entity;
 import de.tr7zw.javaorbit.server.maps.entities.EntityCollectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
+import de.tr7zw.javaorbit.server.npc.EntityLordakia;
 import de.tr7zw.javaorbit.server.npc.EntityNPC;
+import de.tr7zw.javaorbit.server.npc.EntityStreuner;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -33,6 +36,8 @@ import lombok.extern.java.Log;
 public class MapInstance {
 
 	private static AtomicInteger ID_COUNTER = new AtomicInteger(0);
+	private static final Random random = new Random();
+
 	@Getter private Maps map;
 	@Getter private int instanceId = ID_COUNTER.getAndIncrement(); 
 	private InstanceThread thread = new InstanceThread(this);
@@ -41,6 +46,7 @@ public class MapInstance {
 	@Getter private HashMap<Integer, EntityCollectable> collectables = new HashMap<>();
 	private HashMap<Position, Station> stations = new HashMap<>();
 	@Getter private HashMap<Integer, EntityGate> gates = new HashMap<>();
+	@Getter private HashMap<EntityTarget, Integer> entityTargetAmount = new HashMap<>();
 	
 	protected MapInstance(Maps map) {
 		this.map = map;
@@ -49,6 +55,7 @@ public class MapInstance {
 		if(map == Maps.MAP1_1) {
 			stations.put(new Position(1000, 1000), Station.MMO_STATION);
 			addGate(new EntityGate(Gate.NORMAL, new Location(this, 18500,11500), new GateTarget(Maps.MAP1_2, 1000, 1000)));
+			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 60);
 		}
 		if(map == Maps.MAP2_1) {
 			stations.put(new Position(20000, 1000), Station.EIC_STATION);
@@ -58,10 +65,16 @@ public class MapInstance {
 		}
 		if(map == Maps.MAP1_2){
 			addGate(new EntityGate(Gate.NORMAL, new Location(this, 1000, 1000), new GateTarget(Maps.MAP1_1, 18500,11500)));
+			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 30);
+			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityLordakia::new), 30);	
 		}
 		thread.start();
 	}
 	
+	public Location getRandomLocation(){
+		return new Location(this, random.nextInt(getMapWidth()), random.nextInt(getMapHeight()));
+	}
+
 	public void addNPC(EntityNPC npc) {
 		this.livingEntities.put(npc.getId(), npc);
 	}

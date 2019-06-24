@@ -1,6 +1,7 @@
 package de.tr7zw.javaorbit.server.maps;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import de.tr7zw.javaorbit.server.Server;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
@@ -13,7 +14,6 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShootLa
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnShip;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutStatus;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
-import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.maps.entities.EntityAI;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
@@ -24,30 +24,43 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class InstanceThread extends Thread{
+public class InstanceThread extends Thread {
 
-	@NonNull private MapInstance instance;
+	@NonNull
+	private MapInstance instance;
 	private int tickrate = 20;
-	private int tickwait = 1000/tickrate;
+	private int tickwait = 1000 / tickrate;
 	private int serverTick = 0;
 
 	@Override
 	public void run() {
-		while(!Server.getInstance().isShutdown()) {
+		while (!Server.getInstance().isShutdown()) {
 			serverTick++;
-			for(EntityLiving living : instance.getLivingEntities().values()) {
-				updatePosition(living);//Update position
-				if(serverTick % 5 == 0 && living instanceof EntityNPC){
-					((EntityAI)living).updateAi();
+			for (EntityLiving living : instance.getLivingEntities().values()) {
+				updatePosition(living);// Update position
+				if (serverTick % 5 == 0 && living instanceof EntityNPC) {
+					((EntityAI) living).updateAi();
 					updateCombatAI((EntityNPC) living);
-				}	
+				}
 			}
-			for(Player player : instance.getPlayers().values()) {//Playertick
+			for (Player player : instance.getPlayers().values()) {// Playertick
 				updateViewdistancePlayer(player);
 				updatePlayerStatus(player);
 				updateCombat(player);
 			}
+			if (serverTick % tickrate == 0) {// Entity Spawning
+				for (Entry<EntityTarget, Integer> ent : instance.getEntityTargetAmount().entrySet()) {
+					long amount = instance.getLivingEntities().values().stream()
+							.filter(e -> ent.getKey().getEntityClass() == e.getClass()).count();
+					amount = ent.getValue() - amount;
+					while(amount > 0){
+						instance.addNPC(ent.getKey().getCreator().apply(instance.getRandomLocation()));
+						amount--;
+					}
+				}
+			}
 			try {
+				long time = System.currentTimeMillis() - start;
 				Thread.sleep(tickwait);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -56,10 +69,9 @@ public class InstanceThread extends Thread{
 	}
 
 	private void updateCombatAI(EntityNPC entity) {
-		if(entity.getTarget() != null && serverTick % tickrate == 0) {
+		if(entity.getTarget() != null && entity.isAgressive() && serverTick % tickrate == 0) {
 			entity.setWasAttacking(true);
-			EntityLiving target = entity.getTarget();
-			instance.sendContextPacket(entity, new PacketPlayOutShootLaser(entity.getId(), target.getId(), entity.getAmmo(), null, null));
+			instance.sendContextPacket(entity, new PacketPlayOutShootLaser(entity.getId(), entity.getTarget().getId(), entity.getAmmo(), null, null));
 		}
 
 		if((entity.isOutOfReach() || entity.isTargetInSavezone()) && entity.isWasAttacking()) {
