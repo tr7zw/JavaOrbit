@@ -112,6 +112,16 @@ public class MapInstance {
 		return false;
 	}
 
+	public int getMapWidth(){
+		if(map == Maps.MAP4_4 || map == Maps.MAP4_5)return 42000;
+		return 21000;
+	}
+
+	public int getMapHeight(){
+		if(map == Maps.MAP4_4 || map == Maps.MAP4_5)return 28000;
+		return 14000;
+	}
+
 	public EntityGate getGateAt(Location location){
 		if(!location.getInstance().equals(this))return null;
 		for(EntityGate gate : gates.values()){

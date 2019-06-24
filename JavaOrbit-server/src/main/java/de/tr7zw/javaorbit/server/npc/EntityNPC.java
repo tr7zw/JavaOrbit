@@ -1,5 +1,6 @@
 package de.tr7zw.javaorbit.server.npc;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.tr7zw.javaorbit.server.Location;
@@ -22,6 +23,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class EntityNPC implements EntityAI{
+
+	private final static Random random = new Random();
 
 	private int id = Counter.COUNTER.decrementAndGet();
 	@NonNull private String name;
@@ -48,9 +51,14 @@ public abstract class EntityNPC implements EntityAI{
 	}
 	
 	public void moveTo(Location moveLoc){
-		startLocation = location;
+		startLocation = location.clone();
 		targetLocation = moveLoc;
 		setMoving(true);
+		int distance = getLocation().distance(getTargetLocation());
+		int time = distance / getShip().getSpeed() * 1080; //At least while testing 1080 was fitting the clients speed
+		if(time == 0)time = 1000;
+		setMoveTime(time);
+		setMovingStartTime(System.currentTimeMillis());
 	}
 
 	@Override
@@ -70,7 +78,7 @@ public abstract class EntityNPC implements EntityAI{
 			}
 		}
 		if(target != null){
-			if(target.getLocation() == null || target.getLocation().getInstance() != location.getInstance() || (!wasAttacking && targetInSavezone) || !target.getLocation().inDistance(location, 2000)){
+			if(target.getLocation() == null || target.getLocation().getInstance() != location.getInstance() || (!wasAttacking && targetInSavezone) || !target.getLocation().inDistance(location, 1700)){
 				target = null;
 				targetInSavezone = false;
 				return;
@@ -79,12 +87,14 @@ public abstract class EntityNPC implements EntityAI{
 			targetInSavezone = ((Player)target).inDemilitarizedZone();
 
 			outOfReach = !target.getLocation().inDistance(location, 300);
-			if(!target.getLocation().inDistance(location, 250)){
+			if(!target.getLocation().inDistance(location, 250) && (targetLocation == null || !target.getLocation().inDistance(targetLocation, 250))){
 				final double angle = Math.toRadians(Math.random() * 360);
             	final int newPosX = (int) (target.getLocation().getX() +(250 * Math.cos(angle)));
 				final int newPosY = (int) (target.getLocation().getY() + (250 * Math.sin(angle)));
 				moveTo(new Location(location.getInstance(), newPosX, newPosY));
 			}
+		} else if(!moving && Math.random() > 0.8){ //Random stroll
+			moveTo(new Location(location.getInstance(), random.nextInt(location.getInstance().getMapWidth()), random.nextInt(location.getInstance().getMapHeight())));
 		}
 	}
 

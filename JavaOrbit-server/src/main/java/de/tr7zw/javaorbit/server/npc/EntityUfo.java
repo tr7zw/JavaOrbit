@@ -17,6 +17,7 @@ public class EntityUfo extends EntityNPC {
 			setType(ShipType.UFO_BIG);
 			setMaxHp(1000000);
 			setHp(getMaxHp());
+			setSpeed(200);
 		}
 	}
 

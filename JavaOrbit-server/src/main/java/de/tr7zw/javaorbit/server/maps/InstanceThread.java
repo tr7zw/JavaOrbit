@@ -1,5 +1,7 @@
 package de.tr7zw.javaorbit.server.maps;
 
+import java.util.Map;
+
 import de.tr7zw.javaorbit.server.Server;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPermanentTitle;
@@ -103,14 +105,9 @@ public class InstanceThread extends Thread{
 	private void updatePlayerStatus(Player player){
 		player.setNextGate(instance.getGateAt(player.getLocation()));
 		player.setInBase(instance.inStation(player.getLocation(), player.getFaction()));
-		Maps map = player.getLocation().getInstance().getMap();
 		int x = player.getLocation().getX();
 		int y = player.getLocation().getY();
-		if(map == Maps.MAP4_4 || map == Maps.MAP4_5){
-			player.setInRadiationZone(x < 0 || y < 0 || x > 42000 || y > 28000);
-		}else{
-			player.setInRadiationZone(x < 0 || y < 0 || x > 21000 || y > 14000);
-		}
+		player.setInRadiationZone(x < 0 || y < 0 || x > instance.getMapWidth() || y > instance.getMapHeight());
 
 		player.sendPacket(new PacketPlayOutStatus(player.getLocation().getX(),player.getLocation().getY(),player.inDemilitarizedZone(), player.isRepairing(), player.isInBase(), player.isInRadiationZone(), player.getNextGate() != null));
 	}
@@ -139,6 +136,7 @@ public class InstanceThread extends Thread{
 					if(player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
 						view.getViewLiving().add(other);
 						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getLaserLook(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), false, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
+						player.sendPacket(new PacketPlayOutShipMove(other.getId(), other.getLocation().getX(), other.getLocation().getY(), 1));
 						player.sendPacket(new PacketPlayOutSetDrones(other.getId(), other.getDroneFormationString()));
 						player.sendPacket(new PacketPlayOutPermanentTitle(other.getId(), other.getTitle()));
 					}
