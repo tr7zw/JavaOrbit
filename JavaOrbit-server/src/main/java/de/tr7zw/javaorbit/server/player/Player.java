@@ -74,7 +74,7 @@ public class Player implements EntityPlayer {
 	private int viewDistance = 2000;
 	private Rings rings = Rings.PYRAMIDE;
 	private PlayerData playerData = new PlayerData();
-	private PlayerShip playerShip = new PlayerShip();
+	private PlayerShip playerShip = new PlayerShip(this);
 
 	public void sendLogin() {
 		connection.send("A", "SET|" + settings.getSet());
