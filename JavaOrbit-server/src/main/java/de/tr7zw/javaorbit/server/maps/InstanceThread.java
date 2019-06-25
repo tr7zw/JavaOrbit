@@ -2,6 +2,7 @@ package de.tr7zw.javaorbit.server.maps;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import de.tr7zw.javaorbit.server.Server;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
@@ -22,8 +23,10 @@ import de.tr7zw.javaorbit.server.player.Player;
 import de.tr7zw.javaorbit.server.player.PlayerView;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 
 @RequiredArgsConstructor
+@Log
 public class InstanceThread extends Thread {
 
 	@NonNull
@@ -36,6 +39,7 @@ public class InstanceThread extends Thread {
 	public void run() {
 		while (!Server.getInstance().isShutdown()) {
 			serverTick++;
+			try{
 			for (EntityLiving living : instance.getLivingEntities().values()) {
 				updatePosition(living);// Update position
 				if (serverTick % 5 == 0 && living instanceof EntityNPC) {
@@ -64,13 +68,17 @@ public class InstanceThread extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}catch(Exception ex){
+			log.log(Level.WARNING, "Caught Exception during instance tick!", ex);
+		}
 		}
 	}
 
 	private void updateCombatAI(EntityNPC entity) {
-		if(entity.getTarget() != null && entity.isAgressive() && serverTick % tickrate == 0) {
+		if(entity.getTarget() != null && entity.isAgressive() && serverTick % tickrate == 0 && !entity.isOutOfReach() && !entity.isTargetInSavezone()) {
 			entity.setWasAttacking(true);
 			instance.sendContextPacket(entity, new PacketPlayOutShootLaser(entity.getId(), entity.getTarget().getId(), entity.getAmmo(), null, null));
+			entity.getTarget().onAttack(entity);
 		}
 
 		if((entity.isOutOfReach() || entity.isTargetInSavezone()) && entity.isWasAttacking()) {

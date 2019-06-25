@@ -1,15 +1,21 @@
 package de.tr7zw.javaorbit.server.player;
 
+import java.util.Random;
+
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.Server;
 import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.PlayerConnection;
 import de.tr7zw.javaorbit.server.connection.Session;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPermanentTitle;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPlayerInfo;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDrones;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetMap;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipData;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipKilled;
+import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShowMessage;
 import de.tr7zw.javaorbit.server.enums.Ammo;
 import de.tr7zw.javaorbit.server.enums.Gate;
@@ -34,6 +40,7 @@ import lombok.Setter;
 public class Player implements EntityPlayer {
 
 	private static int DEBUG_COUNTER = 0;
+	private final static Random random = new Random();
 
 	private String name = "Debug" + (++DEBUG_COUNTER);
 	@NonNull
@@ -297,6 +304,13 @@ public class Player implements EntityPlayer {
 		sendPacket(new PacketPlayOutPermanentTitle(session.getUserId(), title));
 	}
 
+	public void updatePlayerData() {
+		getConnection().send("0|A|HPT|" + getShip().getHp() + "|" + getShip().getMaxHp());
+		getConnection().send("0|A|SHD|" + getShip().getShield() + "|" + getShip().getMaxShield());
+		getConnection().send("0|A|C|" + getPlayerData().getCredits() + "|" + getPlayerData().getUridium());
+		getConnection().send("0|A|v|" + getShip().getSpeed());
+	}
+
 	public static String toEnum(boolean isTrue) {
 		return (isTrue) ? "1" : "0";
 	}
@@ -317,17 +331,49 @@ public class Player implements EntityPlayer {
 
 	@Override
 	public void onAttack(EntityLiving attacker) {
-
+		int dmg = attacker.getShip().getDps();
+		dmg *= 1f-((float)random.nextInt(20)/100f);
+		damage(attacker, dmg);
 	}
 
 	@Override
 	public void damage(EntityLiving attacker, int amount) {
+		int shieldDmg = (int) (getShip().getShieldStrength() * amount);
+		int directDmg = amount - shieldDmg;
+		int newShield = getShip().getShield() - shieldDmg;
+		if(newShield < 0){
+			directDmg += Math.abs(newShield);
+			newShield = 0;
+		}
+		getShip().setShield(newShield);
+		getShip().setHp(Math.max(getShip().getHp()-directDmg, 0));
+		getConnection().send("0|Y|" + getShip().getHp() + "|" + getShip().getShield() + "|0|" + amount);
+		if(getShip().getHp() <= 0){
+			onDeath(attacker);
+		}
+		if(attacker instanceof Player){
+			Player player = (Player) attacker;
+			player.getConnection().send("0|H|" + Math.max(1, getShip().getShield()) + "|" + getShip().getHp() + "|" + this.getId() + "|" + amount);
+			player.sendPacket(new PacketPlayOutShipData(getId(), getName(),  getShip().getHp(), getShip().getMaxHp(), getShip().getShield(), getShip().getMaxShield()));
+			if(isDead()){
+				player.getPlayerView().setAttacking(false);
+				player.getPlayerView().setSelected(null);
+			}
+		}
+		updatePlayerData();
+	}
 
+	public boolean isDead(){
+		return getShip().getHp() <= 0;
 	}
 
 	@Override
 	public void onDeath(EntityLiving attacker) {
-
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutShipKilled(this.getId()));
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutLaserStop(attacker.getId(), this.getId()));
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutLaserStop(this.getId(), attacker.getId()));
+		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutShipRemove(this.getId()));
+		getLocation().getInstance().removeLiving(this);
 	}
 
 }
