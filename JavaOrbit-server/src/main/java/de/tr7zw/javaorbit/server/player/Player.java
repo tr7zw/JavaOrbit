@@ -269,8 +269,11 @@ public class Player implements EntityPlayer {
 	public void warp(Location targetLocation) {
 		boolean sameMap = targetLocation.getInstance().equals(getLocation().getInstance());
 		MapManager manager = Server.getInstance().getMapManager();
+		moving = false;
+		sendPacket(new PacketPlayOutShipRemove(getId()));
 		if (sameMap)
 			manager.enterMap(this, Maps.QUESTIONMARK, 1000, 1000);
+		sendPacket(new PacketPlayOutShipRemove(getId()));
 		manager.enterMapInstance(this, targetLocation.getInstance(), targetLocation.getX(), targetLocation.getY());
 	}
 
