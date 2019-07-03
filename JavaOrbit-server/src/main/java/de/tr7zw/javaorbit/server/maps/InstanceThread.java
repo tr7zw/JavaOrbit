@@ -48,9 +48,12 @@ public class InstanceThread extends Thread {
 				}
 			}
 			for (Player player : instance.getPlayers().values()) {// Playertick
-				updateViewdistancePlayer(player);
-				updatePlayerStatus(player);
-				updateCombat(player);
+				if(!player.isDead()){
+					updateViewdistancePlayer(player);
+					updatePlayerStatus(player);
+					updateCombat(player);
+					updateGateProgress(player);
+				}
 			}
 			if (serverTick % tickrate == 0) {// Entity Spawning
 				for (Entry<EntityTarget, Integer> ent : instance.getEntityTargetAmount().entrySet()) {
@@ -71,6 +74,15 @@ public class InstanceThread extends Thread {
 		}catch(Exception ex){
 			log.log(Level.WARNING, "Caught Exception during instance tick!", ex);
 		}
+		}
+	}
+
+	private void updateGateProgress(Player player){
+		if(player.getUsingGate() != null){
+			if(System.currentTimeMillis() - player.getGateStartTime() > 2000){
+				player.warp(player.getUsingGate().getTarget().getLocation());
+				player.setUsingGate(null);
+			}
 		}
 	}
 

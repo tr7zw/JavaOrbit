@@ -82,6 +82,10 @@ public class Player implements EntityPlayer {
 	private Rings rings = Rings.PYRAMIDE;
 	private PlayerData playerData = new PlayerData();
 	private PlayerShip playerShip = new PlayerShip(this);
+	@Setter
+	private EntityGate usingGate = null;
+	@Setter
+	private long gateStartTime = 0;
 
 	public void sendLogin() {
 		connection.send("A", "SET|" + settings.getSet());
