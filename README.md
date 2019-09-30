@@ -1,5 +1,5 @@
 # JavaOrbit
-Java based server emulator for DarkOrbit(Based on Azure/OrbitReborn)
+Java based server emulator for DarkOrbit(Packet data and some ideas based on Azure/OrbitReborn)
 
 ## Working Features
 - Maps containing Stations, Gates, Players/AI, Boxes, Ore
@@ -7,16 +7,17 @@ Java based server emulator for DarkOrbit(Based on Azure/OrbitReborn)
 - All Maps, Gates, Ships, Boxes, Ores, Factions, Booster, Ranks, Rings, Stations imported
 - Serverside and clientside movement for Players and AI
 - Viewdistance based visibility
+- Chat(In the 2011 2d Client, the old 2009 Client isn't working yet)
+- Jump-Gates
+- Combat basics
 
 ## Todo
-- Chat
-- Get Jump-Gates working
-- Combat
 - Completing usermanagement like saving, inventory(Cargo, Ammo, Lasers, CPU's, Generators..)
 - Clans
 - Group system
 - Ship Backend
-- AI
+- AI(WIP)
+- Trying to get the 3d Client to work
 
 ## Planed Features
 - Reimplementing the entire game as close as possible (Mobs, Events, Gates, Items, Mechanics)
