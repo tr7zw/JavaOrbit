@@ -1,8 +1,10 @@
 package de.tr7zw.javaorbit.server;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.util.logging.Level;
 
+import de.tr7zw.javaorbit.cms.CmsEmbededRunner;
 import de.tr7zw.javaorbit.server.chat.ChatManager;
 import de.tr7zw.javaorbit.server.connection.ConnectionListener;
 import de.tr7zw.javaorbit.server.connection.ConnectionPool;
@@ -28,6 +30,8 @@ public class Server {
 	private MapManager mapManager;
 	@Getter
 	private ChatManager chatManager;
+	@Getter
+	private CmsEmbededRunner cms;
 	
 	public static void main(String[] args) throws InterruptedException {
 		new Server();
@@ -51,6 +55,13 @@ public class Server {
 		}
 		mapManager = new MapManager();
 		chatManager = new ChatManager();
+		cms = new CmsEmbededRunner();
+		try {
+			cms.startServer();
+		}catch(BindException ex) {
+			log.log(Level.SEVERE, "Unable to bind to port!", ex);
+			return;
+		}
 		log.log(Level.INFO, "Server Started!");
 	}
 
