@@ -19,7 +19,7 @@
     <dependency>
       <groupId>com.caucho</groupId>
       <artifactId>resin</artifactId>
-      <version>4.0.62</version>
+      <version>4.0.63</version>
     </dependency>
 	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 <dependency>
