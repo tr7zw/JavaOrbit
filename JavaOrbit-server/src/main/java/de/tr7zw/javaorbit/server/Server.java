@@ -1,10 +1,14 @@
 package de.tr7zw.javaorbit.server;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.util.logging.Level;
 
-import de.tr7zw.javaorbit.cms.CmsEmbededRunner;
+import org.pf4j.PluginManager;
+
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+
 import de.tr7zw.javaorbit.server.chat.ChatManager;
 import de.tr7zw.javaorbit.server.connection.ConnectionListener;
 import de.tr7zw.javaorbit.server.connection.ConnectionPool;
@@ -13,10 +17,11 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 
 @Log
-public class Server {
+public class Server implements Runnable {
 
 	@Getter
 	private static Server instance;
+	private static Thread serverThread;
 	@Getter
 	private boolean shutdown = false;
 	@Getter
@@ -30,18 +35,28 @@ public class Server {
 	private MapManager mapManager;
 	@Getter
 	private ChatManager chatManager;
+	// @Getter
+	// private CmsEmbededRunner cms;
+	@Inject
+	private PluginManager pluginManager;
 	@Getter
-	private CmsEmbededRunner cms;
-	
+	@Inject
+	private Injector injector;
+
 	public static void main(String[] args) throws InterruptedException {
-		new Server();
-		while(!instance.shutdown) {
-			Thread.sleep(100);
-		}
+		Injector injector = Guice.createInjector(new InjectorModule());
+		Server server = injector.getInstance(Server.class);
+		serverThread = new Thread(server);
+		serverThread.start();
 	}
-	
+
 	public Server() {
 		instance = this;
+	}
+
+	@Override
+	public void run() {
+		pluginManager.loadPlugins();
 		try {
 			this.connectionListener = new ConnectionListener(8080);
 			connectionThread = new Thread(connectionListener);
@@ -55,14 +70,20 @@ public class Server {
 		}
 		mapManager = new MapManager();
 		chatManager = new ChatManager();
-		cms = new CmsEmbededRunner();
-		try {
-			cms.startServer();
-		}catch(BindException ex) {
-			log.log(Level.SEVERE, "Unable to bind to port!", ex);
-			return;
-		}
+		// cms = new CmsEmbededRunner();
+		pluginManager.startPlugins();
+		/*
+		 * try { cms.startServer(); }catch(BindException ex) { log.log(Level.SEVERE,
+		 * "Unable to bind to port!", ex); return; }
+		 */
 		log.log(Level.INFO, "Server Started!");
+		while (!shutdown) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
