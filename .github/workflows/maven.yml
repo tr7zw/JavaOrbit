@@ -19,4 +19,4 @@ jobs:
       uses: actions/upload-artifact@v2-preview
       with:
         name: JavaOrbit
-        path: JavaOrbit-server/target/*.jar
+        path: JavaOrbit-server/target/*-jar-with-dependencies.jar
