@@ -28,7 +28,7 @@
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
-      <version>4.2.3</version>
+      <version>5.0.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
     <dependency>
