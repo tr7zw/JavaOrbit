@@ -17,7 +17,7 @@ public class PacketPlayInSelectShip extends PacketPlayIn{
 
 	@Override
 	public void onRecieve(Player player) {
-		MapInstance instance = player.getLocation().getInstance();
+		MapInstance instance = player.getPositionComponent().instance;
 		EntityLiving target = instance.getEntity(id);
 		if(target == null)return;
 		if(target == player)return;

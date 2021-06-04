@@ -2,8 +2,23 @@ package de.tr7zw.javaorbit.server.player;
 
 import java.util.Random;
 
-import de.tr7zw.javaorbit.server.Location;
+import javax.swing.text.Position;
+
+import com.badlogic.ashley.core.Entity;
+
 import de.tr7zw.javaorbit.server.Server;
+import de.tr7zw.javaorbit.server.components.BaseUserComponent;
+import de.tr7zw.javaorbit.server.components.DemilitarizedComponent;
+import de.tr7zw.javaorbit.server.components.DronesComponent;
+import de.tr7zw.javaorbit.server.components.GateComponent;
+import de.tr7zw.javaorbit.server.components.GateUserComponent;
+import de.tr7zw.javaorbit.server.components.IdComponent;
+import de.tr7zw.javaorbit.server.components.MoveableComponent;
+import de.tr7zw.javaorbit.server.components.NamedComponent;
+import de.tr7zw.javaorbit.server.components.PacketConsumerComponent;
+import de.tr7zw.javaorbit.server.components.PositionComponent;
+import de.tr7zw.javaorbit.server.components.RadiationComponent;
+import de.tr7zw.javaorbit.server.components.RepairComponent;
 import de.tr7zw.javaorbit.server.connection.PlayerConnection;
 import de.tr7zw.javaorbit.server.connection.Session;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
@@ -18,47 +33,33 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRem
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShowMessage;
 import de.tr7zw.javaorbit.server.enums.Ammo;
 import de.tr7zw.javaorbit.server.enums.Faction;
-import de.tr7zw.javaorbit.server.enums.Gate;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
 import de.tr7zw.javaorbit.server.enums.ShipType;
 import de.tr7zw.javaorbit.server.enums.Title;
+import de.tr7zw.javaorbit.server.maps.MapInstance;
 import de.tr7zw.javaorbit.server.maps.MapManager;
-import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
 import de.tr7zw.javaorbit.server.maps.entities.EntityPlayer;
 import de.tr7zw.javaorbit.server.maps.entities.PlayerShip;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor
 @Getter
 public class Player implements EntityPlayer {
 
-	private static int DEBUG_COUNTER = 0;
 	private final static Random random = new Random();
-
-	private String name = "Debug" + (++DEBUG_COUNTER);
+	
+	// Data
+	@NonNull
+	private Entity entity = new Entity();
 	@NonNull
 	private PlayerConnection connection;
 	@NonNull
 	private Session session;
-	@Setter
-	private Location location = new Location(Server.getInstance().getMapManager().getInstance(Maps.MAP1_1), 1000, 1000);
-	@Setter
-	private Location targetLocation = location;
-	@Setter
-	private long movingStartTime = 0;
-	@Setter
-	private boolean moving = false;
-	@Setter
-	private int moveTime = 0;
-	@Setter
-	private Location startLocation = location;
 	@Setter
 	private Ammo ammo = Ammo.USB100;
 	private Settings settings = new Settings();
@@ -72,8 +73,6 @@ public class Player implements EntityPlayer {
 	@Setter
 	boolean repairing = false;
 	@Setter
-	EntityGate nextGate = null;
-	@Setter
 	boolean inBase = false;
 	@Setter
 	boolean inRadiationZone = false;
@@ -82,11 +81,34 @@ public class Player implements EntityPlayer {
 	private Rings rings = Rings.PYRAMIDE;
 	private PlayerData playerData = new PlayerData();
 	private PlayerShip playerShip = new PlayerShip(this);
-	@Setter
-	private EntityGate usingGate = null;
-	@Setter
-	private long gateStartTime = 0;
+	// Components
+	private final NamedComponent nameComponent;
+	private final DronesComponent dronesComponent;
+	private final IdComponent idComponent;
+	private final PositionComponent positionComponent;
+	private final MoveableComponent moveableComponent;
+	private final GateUserComponent gateUserComponent;
 
+    public Player(@NonNull PlayerConnection connection, @NonNull Session session, @NonNull String name) {
+        this.connection = connection;
+        this.session = session;
+        nameComponent = entity.addAndReturn(new NamedComponent(name));
+        dronesComponent = entity.addAndReturn(new DronesComponent());
+        idComponent = entity.addAndReturn(new IdComponent(session.getUserId()));
+        positionComponent = entity.addAndReturn(new PositionComponent(Server.getInstance().getMapManager().getInstance(Maps.MAP1_1), 1000, 1000));
+        moveableComponent = entity.addAndReturn(new MoveableComponent());
+        gateUserComponent = entity.addAndReturn(new GateUserComponent(this::warpGate));
+        entity.add(new PacketConsumerComponent(this::sendPacket));
+        entity.add(new RadiationComponent());
+        entity.add(new BaseUserComponent());
+        entity.add(new DemilitarizedComponent());
+        entity.add(new RepairComponent());
+    }
+    
+    public String getName() {
+        return nameComponent.name;
+    }
+	
 	public void sendLogin() {
 		connection.send("A", "SET|" + settings.getSet());
 		connection.send("7", "CLIENT_RESOLUTION|" + settings.getClientResolution());
@@ -123,7 +145,7 @@ public class Player implements EntityPlayer {
 		connection.send("7", "MAINMENU_POSITION," + settings.getMainmenuPosition());
 
 		updatePlayer();
-		sendPacket(new PacketPlayOutSetMap(getLocation().getInstance().getMap()));
+		sendPacket(new PacketPlayOutSetMap(positionComponent.instance.getMap()));
 		sendPacket(new PacketPlayOutSetDrones(getSession().getUserId(), getDroneFormationString()));
 		String send = "0|1|-2|5200|6000|687| 0|1|-3|9700|2000|1535| 0|1|-4|17300|9500|3433| 0|1|-5|9100|3000|1942| 0|1|-6|15700|2700|687| 0|1|-7|7800|1700|971| 0|1|-8|7400|9800|1373|\r\n"
 				+
@@ -139,8 +161,8 @@ public class Player implements EntityPlayer {
 
 		connection.send("0|A|ADM|CLI|1");
 		sendMessage("Welcome on JavaOrbit");
-		Server.getInstance().getMapManager().enterMap(this, getLocation().getInstance().getMap(), getLocation().getX(),
-				getLocation().getY());
+		Server.getInstance().getMapManager().enterMap(this, positionComponent.instance.getMap(), positionComponent.x,
+		        positionComponent.y);
 
 		if (true)
 			return;
@@ -266,25 +288,29 @@ public class Player implements EntityPlayer {
 	}
 
 	public void changeName(String name) {
-		this.name = name;
+		nameComponent.name = name;
 		updatePlayer();
 	}
 
-	public void warp(Location targetLocation) {
-		boolean sameMap = targetLocation.getInstance().equals(getLocation().getInstance());
+	   private void warpGate(GateComponent gate) {
+	       warp(Server.getInstance().getMapManager().getInstance(gate.targetMap), gate.x, gate.y);
+	   }
+	
+	public void warp(MapInstance instance, int targetX, int targetY) {
+		boolean sameMap = instance.equals(positionComponent.instance);
 		MapManager manager = Server.getInstance().getMapManager();
-		moving = false;
+		moveableComponent.moving = false;
 		sendPacket(new PacketPlayOutShipRemove(getId()));
 		if (sameMap)
 			manager.enterMap(this, Maps.QUESTIONMARK, 1000, 1000);
 		sendPacket(new PacketPlayOutShipRemove(getId()));
-		manager.enterMapInstance(this, targetLocation.getInstance(), targetLocation.getX(), targetLocation.getY());
+		manager.enterMapInstance(this, instance, targetX, targetY);
 	}
 
 	public void refreshPlayer() {
-		Maps map = getLocation().getInstance().getMap();
-		int posX = getLocation().getX();
-		int posY = getLocation().getY();
+		Maps map = positionComponent.instance.getMap();
+		int posX = positionComponent.x;
+		int posY = positionComponent.y;
 		MapManager manager = Server.getInstance().getMapManager();
 		manager.enterMap(this, Maps.QUESTIONMARK, 1000, 1000);
 		manager.enterMap(this, map, posX, posY);
@@ -299,16 +325,16 @@ public class Player implements EntityPlayer {
 	}
 
 	public void updatePlayer() {
-		sendPacket(new PacketPlayOutPlayerInfo(session.getUserId(), getName(), getPlayerShip().getType(),
+		sendPacket(new PacketPlayOutPlayerInfo(getId(), getName(), getPlayerShip().getType(),
 				getPlayerShip().getSpeed(), getPlayerShip().getShield(), getPlayerShip().getMaxShield(),
 				getPlayerShip().getHp(), getPlayerShip().getMaxHp(), getPlayerShip().getCargo(),
-				getPlayerShip().getMaxCargo(), (int) getLocation().getX(), (int) getLocation().getY(),
-				getLocation().getInstance().getMap(), faction, 1, 10000, 10000, LaserLook.FULL_ELITE,
+				getPlayerShip().getMaxCargo(), positionComponent.x, positionComponent.y,
+				positionComponent.instance.getMap(), faction, 1, 10000, 10000, LaserLook.FULL_ELITE,
 				getPlayerData().isPremium(), getPlayerData().getExp(), getPlayerData().getHonor(),
 				getPlayerData().getLevel(), getPlayerData().getCredits(), getPlayerData().getUridium(),
 				getPlayerData().getJackpot(), rank, clan != null ? clan.getTag() : "", rings, false));
-		sendPacket(new PacketPlayOutSetDrones(getSession().getUserId(), getDroneFormationString()));
-		sendPacket(new PacketPlayOutPermanentTitle(session.getUserId(), title));
+		sendPacket(new PacketPlayOutSetDrones(getId(), getDroneFormationString()));
+		sendPacket(new PacketPlayOutPermanentTitle(getId(), title));
 	}
 
 	public void updatePlayerData() {
@@ -324,16 +350,19 @@ public class Player implements EntityPlayer {
 
 	@Override
 	public int getId() {
-		return getSession().getUserId();
+	    if(idComponent.id != getSession().getUserId()) {
+	        Thread.dumpStack();
+	    }
+		return idComponent.id;
 	}
 
 	@Override
 	public String getDroneFormationString() {
-		return "3/2-25-25,3/4-25-25-25-25,3/2-25-25";
+	    return dronesComponent.droneFormationString;
 	}
 
 	public boolean inDemilitarizedZone() {
-		return nextGate != null || inBase;
+		return gateUserComponent.gateInfo != null || inBase;
 	}
 
 	@Override
@@ -376,11 +405,11 @@ public class Player implements EntityPlayer {
 
 	@Override
 	public void onDeath(EntityLiving attacker) {
-		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutShipKilled(this.getId()));
-		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutLaserStop(attacker.getId(), this.getId()));
-		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutLaserStop(this.getId(), attacker.getId()));
-		getLocation().getInstance().sendContextPacket(this, new PacketPlayOutShipRemove(this.getId()));
-		getLocation().getInstance().removeLiving(this);
+	    positionComponent.instance.sendContextPacket(this, new PacketPlayOutShipKilled(this.getId()));
+	    positionComponent.instance.sendContextPacket(this, new PacketPlayOutLaserStop(attacker.getId(), this.getId()));
+	    positionComponent.instance.sendContextPacket(this, new PacketPlayOutLaserStop(this.getId(), attacker.getId()));
+	    positionComponent.instance.sendContextPacket(this, new PacketPlayOutShipRemove(this.getId()));
+	    positionComponent.instance.removeLiving(this);
 	}
 
 }

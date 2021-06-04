@@ -21,7 +21,7 @@ public class PacketPlayInLaserAttack extends PacketPlayIn{
 				player.getConnection().send("0|P");
 				player.sendPacket(new PacketPlayOutLaserStop(player.getId(), player.getPlayerView().getSelected().getId()));
 			}else{
-				player.getLocation().getInstance().sendContextPacket(player, new PacketPlayOutShootLaser(player.getId(), targetId, player.getAmmo(), true, true));
+				player.getPositionComponent().instance.sendContextPacket(player, new PacketPlayOutShootLaser(player.getId(), targetId, player.getAmmo(), true, true));
 				player.getPlayerView().setAttacking(true);
 			}
 		}

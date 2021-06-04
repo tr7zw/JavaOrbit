@@ -1,24 +1,15 @@
 package de.tr7zw.javaorbit.server.maps;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 import de.tr7zw.javaorbit.server.Server;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutLaserStop;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutPermanentTitle;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSetDrones;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipData;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipMove;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShootLaser;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnShip;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutStatus;
-import de.tr7zw.javaorbit.server.enums.ClanStatus;
 import de.tr7zw.javaorbit.server.enums.Version;
-import de.tr7zw.javaorbit.server.maps.entities.EntityAI;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
-import de.tr7zw.javaorbit.server.npc.EntityNPC;
 import de.tr7zw.javaorbit.server.player.Player;
 import de.tr7zw.javaorbit.server.player.PlayerView;
 import lombok.NonNull;
@@ -40,22 +31,19 @@ public class InstanceThread extends Thread {
 		while (!Server.getInstance().isShutdown()) {
 			serverTick++;
 			try{
-			for (EntityLiving living : instance.getLivingEntities().values()) {
-				updatePosition(living);// Update position
+			/*for (EntityLiving living : instance.getLivingEntities().values()) {
 				if (serverTick % 5 == 0 && living instanceof EntityNPC) {
 					((EntityAI) living).updateAi();
 					updateCombatAI((EntityNPC) living);
 				}
-			}
+			}*/
 			for (Player player : instance.getPlayers().values()) {// Playertick
 				if(!player.isDead()){
 					updateViewdistancePlayer(player);
-					updatePlayerStatus(player);
 					updateCombat(player);
-					updateGateProgress(player);
 				}
 			}
-			if (serverTick % tickrate == 0) {// Entity Spawning
+			/*if (serverTick % tickrate == 0) {// Entity Spawning
 				for (Entry<EntityTarget, Integer> ent : instance.getEntityTargetAmount().entrySet()) {
 					long amount = instance.getLivingEntities().values().stream()
 							.filter(e -> ent.getKey().getEntityClass() == e.getClass()).count();
@@ -65,7 +53,14 @@ public class InstanceThread extends Thread {
 						amount--;
 					}
 				}
-			}
+			}*/
+			Set<Player> toRemove = new HashSet<>();
+			instance.getPlayersToAdd().forEach(p -> {
+			    toRemove.add(p);
+			    instance.getEntityEngine().addEntity(p.getEntity());
+			});
+			instance.getPlayersToAdd().removeAll(toRemove);// FIXME
+			instance.getEntityEngine().update(tickwait);
 			try {
 				Thread.sleep(tickwait);
 			} catch (InterruptedException e) {
@@ -77,16 +72,7 @@ public class InstanceThread extends Thread {
 		}
 	}
 
-	private void updateGateProgress(Player player){
-		if(player.getUsingGate() != null){
-			if(System.currentTimeMillis() - player.getGateStartTime() > 2000){
-				player.warp(player.getUsingGate().getTarget().getLocation());
-				player.setUsingGate(null);
-			}
-		}
-	}
-
-	private void updateCombatAI(EntityNPC entity) {
+	/*private void updateCombatAI(EntityNPC entity) {
 		if(entity.getTarget() != null && entity.isAgressive() && serverTick % tickrate == 0 && !entity.isOutOfReach() && !entity.isTargetInSavezone()) {
 			entity.setWasAttacking(true);
 			instance.sendContextPacket(entity, new PacketPlayOutShootLaser(entity.getId(), entity.getTarget().getId(), entity.getAmmo(), null, null));
@@ -97,7 +83,7 @@ public class InstanceThread extends Thread {
 			entity.getLocation().getInstance().sendContextPacket(entity, new PacketPlayOutLaserStop(entity.getId(), entity.getTarget().getId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
 			entity.setWasAttacking(false);
 		}
-	}
+	}*/
 
 	private void updateCombat(Player player) {
 		if(player.getPlayerView().isAttacking() && player.getPlayerView().getSelected() != null && serverTick % tickrate == 0) {
@@ -109,37 +95,9 @@ public class InstanceThread extends Thread {
 		}
 
 		if(!player.getPlayerView().isAttacking() && player.getPlayerView().isWasAttacking()) {
-			player.getLocation().getInstance().sendContextPacket(player, new PacketPlayOutLaserStop(player.getId(), player.getPlayerView().getSelectedId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
+			player.getPositionComponent().instance.sendContextPacket(player, new PacketPlayOutLaserStop(player.getId(), player.getPlayerView().getSelectedId())); //TODO: FIXME: Doesn't seem to work for other players, keeps shooting
 			player.getPlayerView().setWasAttacking(false);
 		}
-	}
-
-	private void updatePosition(EntityLiving living) { 
-		if(living.isMoving()) {
-			if(System.currentTimeMillis() - living.getMovingStartTime() > living.getMoveTime()) {
-				living.setLocation(living.getTargetLocation());
-				living.setMoving(false);
-			}else {
-				int offsetX = living.getTargetLocation().getX() - living.getStartLocation().getX();
-				int offsetY = living.getTargetLocation().getY() - living.getStartLocation().getY();
-				long timeSinceStart = System.currentTimeMillis() - living.getMovingStartTime();
-				double progress = (double)timeSinceStart / (double)living.getMoveTime();
-				offsetX *= progress;
-				offsetY *= progress;
-				living.getLocation().setX(living.getStartLocation().getX() + offsetX);
-				living.getLocation().setY(living.getStartLocation().getY() + offsetY);
-			}
-		}
-	}
-
-	private void updatePlayerStatus(Player player){
-		player.setNextGate(instance.getGateAt(player.getLocation()));
-		// TODO move to component system player.setInBase(instance.inStation(player.getLocation(), player.getFaction()));
-		int x = player.getLocation().getX();
-		int y = player.getLocation().getY();
-		player.setInRadiationZone(x < 0 || y < 0 || x > instance.getMapWidth() || y > instance.getMapHeight());
-
-		player.sendPacket(new PacketPlayOutStatus(player.getLocation().getX(),player.getLocation().getY(),player.inDemilitarizedZone(), player.isRepairing(), player.isInBase(), player.isInRadiationZone(), player.getNextGate() != null));
 	}
 
 	private void updateViewdistancePlayer(Player player) {
@@ -148,28 +106,28 @@ public class InstanceThread extends Thread {
 			if(other.getId() != player.getId()) {
 				if(view.getViewLiving().contains(other)) {//Can see Entity
 					boolean asTarget = view.getSelectedId() == other.getId() || (other instanceof Player && ((Player)other).getPlayerView().getSelectedId() == player.getId());
-					if(asTarget || player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//move
+					/*if(asTarget || player.getPositionComponent().inDistance(other.get, player.getViewDistance())) {//move
 						if(other.getTargetLocation() != null && view.getLastLoc().getOrDefault(other, 0) != other.getTargetLocation().hashCode()) {//TODO: hack
 							view.getLastLoc().put(other, other.getTargetLocation().hashCode());
 							int distance = other.getLocation().distance(other.getTargetLocation());
 							int time = distance / other.getShip().getSpeed() * 1080;
 							if(time == 0)time = 1000;
 							player.sendPacket(new PacketPlayOutShipMove(other.getId(), other.getTargetLocation().getX(), other.getTargetLocation().getY(), time));
-						}
+						} // TODO ?!?
 					} else {//despawn
 						if(!asTarget) {
 							view.getViewLiving().remove(other);
 							player.sendPacket(new PacketPlayOutShipRemove(other.getId()));
 						}
-					}
+					}*/
 				} else { //Can't see player
-					if(player.getLocation().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
+					/*if(player.getPositionComponent().inDistance(other.getLocation(), player.getViewDistance())) {//Should see him
 						view.getViewLiving().add(other);
 						player.sendPacket(new PacketPlayOutSpawnShip(other.getId(), other.getShip().getType(), other.getLaserLook(), other.getName(), other.getLocation().getX(), other.getLocation().getY(), other.getFaction(), other.getFaction() == player.getFaction(), false, other.getRank(), other.getRings(), ClanStatus.NEUTRAL, other.getClan()));
 						player.sendPacket(new PacketPlayOutShipMove(other.getId(), other.getLocation().getX(), other.getLocation().getY(), 1));
 						player.sendPacket(new PacketPlayOutSetDrones(other.getId(), other.getDroneFormationString()));
 						player.sendPacket(new PacketPlayOutPermanentTitle(other.getId(), other.getTitle()));
-					}
+					}*/
 				}
 			}
 		}

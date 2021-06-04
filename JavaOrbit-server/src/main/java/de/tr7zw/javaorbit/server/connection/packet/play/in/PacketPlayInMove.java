@@ -1,6 +1,5 @@
 package de.tr7zw.javaorbit.server.connection.packet.play.in;
 
-import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.connection.packet.PacketPlayIn;
 import de.tr7zw.javaorbit.server.player.Player;
 
@@ -23,17 +22,19 @@ public class PacketPlayInMove extends PacketPlayIn{
 	}
 
 	@Override
-	public void onRecieve(Player player) {
-		player.getLocation().setX(posX);
-		player.getLocation().setY(posY);
-		player.setTargetLocation(new Location(player.getLocation().getInstance(), targetPosX, targetPosY));
-		player.setMoving(true);
-		player.setStartLocation(player.getLocation().clone());
-		int distance = player.getLocation().distance(player.getTargetLocation());
+	public void onRecieve(Player player) { // TODO move into component controller
+		player.getPositionComponent().x = posX;
+		player.getPositionComponent().y = posY;
+		player.getMoveableComponent().x = targetPosX;
+		player.getMoveableComponent().y = targetPosY;
+		player.getMoveableComponent().moving = true;
+		player.getMoveableComponent().startX = player.getPositionComponent().x;
+		player.getMoveableComponent().startY = player.getPositionComponent().y;
+		int distance = player.getMoveableComponent().distance();
 		int time = distance / player.getShip().getSpeed() * 1080; //At least while testing 1080 was fitting the clients speed
 		if(time == 0)time = 1000;
-		player.setMoveTime(time);
-		player.setMovingStartTime(System.currentTimeMillis());
+		player.getMoveableComponent().moveTime = time;
+		player.getMoveableComponent().movingStartTime = System.currentTimeMillis();
 	}
 
 }

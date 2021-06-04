@@ -1,8 +1,8 @@
 package de.tr7zw.javaorbit.server.connection.packet.play.in;
 
+import de.tr7zw.javaorbit.server.components.GateUserComponent;
 import de.tr7zw.javaorbit.server.connection.packet.PacketPlayIn;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutActivateGate;
-import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.player.Player;
 
 public class PacketPlayInJump extends PacketPlayIn{
@@ -14,13 +14,15 @@ public class PacketPlayInJump extends PacketPlayIn{
 
 	@Override
 	public void onRecieve(Player player) {
-		EntityGate gate = player.getNextGate();
-		if(gate == null) {
+		GateUserComponent user = player.getGateUserComponent();
+		if(user.gateInfo == null) {
 			player.sendMessage("You're not near a jump gate!");
 		}else{
-			player.sendPacket(new PacketPlayOutActivateGate(gate.getLocation().getInstance().getMap().getId(), gate.getId()));
-			player.setGateStartTime(System.currentTimeMillis());
-			player.setUsingGate(gate);
+		    if(user.usingGate == null) {
+		        user.usingGate = user.gateInfo;
+		        user.gateStartTime = System.currentTimeMillis();
+    			player.sendPacket(new PacketPlayOutActivateGate(player.getPositionComponent().instance.getMap().getId(), user.gateId.id));
+		    }
 		}
 	}
 

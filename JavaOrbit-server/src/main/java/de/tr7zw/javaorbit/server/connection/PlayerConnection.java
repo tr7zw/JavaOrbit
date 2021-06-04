@@ -151,7 +151,7 @@ public class PlayerConnection implements Runnable{
 		if(player == null) {
 			if(packet instanceof PacketPlayInLogin) {
 				PacketPlayInLogin login = (PacketPlayInLogin) packet;
-				player = new Player(this, new Session(login.getUserId(), login.getSessionToken(), login.getVersion())); 
+				player = new Player(this, new Session(login.getUserId(), login.getSessionToken(), login.getVersion()), "Debug_" + login.getUserId()); 
 				version = Version.getVersion(login.getVersion());
 				log.log(Level.INFO, "Player '" + player.getName() + "' connected with version: " + version);
 				//TODO: Validate session

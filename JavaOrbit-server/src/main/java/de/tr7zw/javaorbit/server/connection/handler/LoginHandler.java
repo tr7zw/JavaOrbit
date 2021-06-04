@@ -15,7 +15,7 @@ public class LoginHandler implements PacketHandler<LoginRequest>{
 
     @Override
     public void process(PlayerConnection connection, LoginRequest packet) {
-        connection.setPlayer(new Player(connection, new Session(packet.getUserID(), packet.getSessionID(), packet.getVersion()))); 
+        connection.setPlayer(new Player(connection, new Session(packet.getUserID(), packet.getSessionID(), packet.getVersion()), "Debug_" + Math.random())); 
         connection.setVersion(Version.getVersion(packet.getVersion()));
         log.log(Level.INFO, "Player '" + connection.getPlayer().getName() + "' connected with version: " + connection.getVersion());
         //TODO: Validate session

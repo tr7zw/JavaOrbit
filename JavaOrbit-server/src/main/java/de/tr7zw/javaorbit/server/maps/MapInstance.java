@@ -1,42 +1,35 @@
 package de.tr7zw.javaorbit.server.maps;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.signals.Signal;
 
-import de.tr7zw.javaorbit.server.GateTarget;
-import de.tr7zw.javaorbit.server.Location;
-import de.tr7zw.javaorbit.server.Position;
+import de.tr7zw.javaorbit.server.components.GateComponent;
+import de.tr7zw.javaorbit.server.components.IdComponent;
+import de.tr7zw.javaorbit.server.components.PositionComponent;
+import de.tr7zw.javaorbit.server.components.StationComponent;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnCollectable;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnGate;
-import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutSpawnStation;
-import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.Gate;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Station;
 import de.tr7zw.javaorbit.server.enums.Version;
-import de.tr7zw.javaorbit.server.enums.collectables.Collectable;
-import de.tr7zw.javaorbit.server.events.PlayerEvent;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLegacy;
-import de.tr7zw.javaorbit.server.maps.entities.EntityCollectable;
-import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
 import de.tr7zw.javaorbit.server.maps.listener.MapStaticListener;
-import de.tr7zw.javaorbit.server.npc.EntityLordakia;
-import de.tr7zw.javaorbit.server.npc.EntityNPC;
-import de.tr7zw.javaorbit.server.npc.EntityStreuner;
-import de.tr7zw.javaorbit.server.npc.PositionComponent;
-import de.tr7zw.javaorbit.server.npc.StationComponent;
+import de.tr7zw.javaorbit.server.maps.systems.GateSystem;
+import de.tr7zw.javaorbit.server.maps.systems.MovingSystem;
+import de.tr7zw.javaorbit.server.maps.systems.RadiationSystem;
+import de.tr7zw.javaorbit.server.maps.systems.StatusSystem;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -54,25 +47,27 @@ public class MapInstance {
 	@Getter private Engine entityEngine = new Engine();
 	@Getter private HashMap<Integer, Player> players = new HashMap<>();
 	@Getter private HashMap<Integer, EntityLiving> livingEntities = new HashMap<>();
-	@Getter private HashMap<Integer, EntityCollectable> collectables = new HashMap<>();
-	@Getter private HashMap<Integer, EntityGate> gates = new HashMap<>();
-	@Getter private HashMap<EntityTarget, Integer> entityTargetAmount = new HashMap<>();
+	//@Getter private HashMap<Integer, EntityCollectable> collectables = new HashMap<>();
+	//@Getter private HashMap<Integer, EntityGate> gates = new HashMap<>();
+	//@Getter private HashMap<EntityTarget, Integer> entityTargetAmount = new HashMap<>();
+	@Getter private Set<Player> playersToAdd = Collections.synchronizedSet(new HashSet<>());
 	// Events
 	@Getter private Signal<Player> playerJoinEvent = new Signal<>();
 	@Getter private Signal<Player> playerLeaveEvent = new Signal<>();
+
 	
 	
 	protected MapInstance(Maps map) {
 		this.map = map;
 		log.log(Level.INFO, "Created Instance id " + instanceId + " for map " + map.name());
-		addCollectable(new EntityCollectable(Collectable.EASTEREGG, new Location(this, 1963, 1967)));
+		//addCollectable(new EntityCollectable(Collectable.EASTEREGG, new Location(this, 1963, 1967)));
 		if(map == Maps.MAP1_1) {
 			Entity station = entityEngine.createEntity();
 			station.add(new PositionComponent(this, 1000, 1000));
 			station.add(new StationComponent(Station.MMO_STATION));
 		    entityEngine.addEntity(station);
-			addGate(new EntityGate(Gate.NORMAL, new Location(this, 18500,11500), new GateTarget(Maps.MAP1_2, 1000, 1000)));
-			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 60);
+			addGate(Gate.NORMAL, 18500,11500, Maps.MAP1_2, 1000, 1000);
+			//entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 60);
 		}
 		if(map == Maps.MAP2_1) {
 		    Entity station = entityEngine.createEntity();
@@ -87,31 +82,35 @@ public class MapInstance {
             entityEngine.addEntity(station);
 		}
 		if(map == Maps.MAP1_2){
-			addGate(new EntityGate(Gate.NORMAL, new Location(this, 1000, 1000), new GateTarget(Maps.MAP1_1, 18500,11500)));
-			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 30);
-			entityTargetAmount.put(new EntityTarget(EntityLordakia.class, EntityLordakia::new), 30);	
+			addGate(Gate.NORMAL, 1000, 1000, Maps.MAP1_1, 18500,11500);
+			//entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 30);
+			//entityTargetAmount.put(new EntityTarget(EntityLordakia.class, EntityLordakia::new), 30);	
 		}
 		initHandlers();
 		thread.start();
 	}
-	
-	private void initHandlers() {
-	    playerJoinEvent.add(new MapStaticListener(this));
-	}
-	
-	public Location getRandomLocation(){
-		return new Location(this, random.nextInt(getMapWidth()), random.nextInt(getMapHeight()));
-	}
 
-	public void addNPC(EntityNPC npc) {
-		this.livingEntities.put(npc.getId(), npc);
+    private void initHandlers() {
+	    playerJoinEvent.add(new MapStaticListener(this));
+	    entityEngine.addSystem(new MovingSystem());
+	    entityEngine.addSystem(new GateSystem());
+	    entityEngine.addSystem(new StatusSystem());
+	    entityEngine.addSystem(new RadiationSystem());
 	}
+	
+	/*public Location getRandomLocation(){
+		return new Location(this, random.nextInt(getMapWidth()), random.nextInt(getMapHeight()));
+	}*/
+
+	/*public void addNPC(EntityNPC npc) {
+		this.livingEntities.put(npc.getId(), npc);
+	}*/
 	
 	public void addPlayer(Player player) {
-		this.players.put(player.getSession().getUserId(), player);
-		this.livingEntities.put(player.getSession().getUserId(), player);
+	    playersToAdd.add(player);
+		this.players.put(player.getId(), player);
+		this.livingEntities.put(player.getId(), player);
 		log.log(Level.INFO, "Player '" + player.getName() + "' joined the map " + map.name());
-		sendStatic(player);
 		playerJoinEvent.dispatch(player);
 	}
 	
@@ -124,26 +123,32 @@ public class MapInstance {
 	}
 	
 	public void removeLiving(EntityLiving entity) {
+	    playersToAdd.remove(entity);
 		if(players.containsKey(entity.getId())) {
 			for(Player p : players.values()) {
 				p.sendPacket(new PacketPlayOutShipRemove(entity.getId()));
 				p.getPlayerView().getViewLiving().remove(entity);
 			}
-			players.remove(entity.getId());
 			livingEntities.remove(entity.getId());
-			if(entity instanceof Player) {
+			if(players.remove(entity.getId()) != null) {
 			    playerLeaveEvent.dispatch((Player) entity);
+			    Entity playerEntity = ((Player)entity).getEntity();
+			    entityEngine.removeEntity(playerEntity);
 			}
 			log.log(Level.INFO, "EntityLiving '" + entity.getName() + "' left the map " + map.name());
 		}
 	}
 	
-	public void addCollectable(EntityCollectable collectable) {
+	/*public void addCollectable(EntityCollectable collectable) {
 		collectables.put(collectable.getId(), collectable);
-	}
+	}*/
 	
-	public void addGate(EntityGate gate) {
-		gates.put(gate.getId(), gate);
+	private void addGate(Gate gate, int x, int y, Maps targetMap, int targetX, int targetY) {
+		Entity gateEntity = new Entity();
+		gateEntity.add(new PositionComponent(this, x, y));
+		gateEntity.add(new GateComponent(gate, targetMap, targetX, targetY));
+		gateEntity.add(new IdComponent());
+		entityEngine.addEntity(gateEntity);
 	}
 
 	/*public boolean inStation(Location loc, Faction faction){
@@ -166,24 +171,12 @@ public class MapInstance {
 		if(map == Maps.MAP4_4 || map == Maps.MAP4_5)return 28000;
 		return 14000;
 	}
-
-	public EntityGate getGateAt(Location location){
-		if(!location.getInstance().equals(this))return null;
-		for(EntityGate gate : gates.values()){
-			if(gate.getLocation().inDistance(location, 300))
-				return gate;
-		}
-		return null;
-	}
 	
-	public void sendStatic(Player player) {
+	/*public void sendStatic(Player player) {
 		for(EntityCollectable entity : collectables.values()) { //Nonstatic
 			player.sendPacket(new PacketPlayOutSpawnCollectable(entity.getId(), entity.getType(), entity.getLocation().getX(), entity.getLocation().getY()));
 		}
-		for(EntityGate gate : gates.values()) {
-			player.sendPacket(new PacketPlayOutSpawnGate(gate.getId(), gate.getGate(), gate.getLocation().getX(), gate.getLocation().getY()));
-		}
-	}
+	}*/
 
 	public void sendContextPacketVersion(Player player, Version targetVersion, PacketOut packet) {
 		HashSet<Player> sendList = new HashSet<>();

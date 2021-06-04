@@ -16,6 +16,6 @@ public class PacketInAdminCollectable extends PacketPlayIn{
 	
 	@Override
 	public void onRecieve(Player player) {
-		player.sendPacket(new PacketPlayOutSpawnCollectable(--counter, Collectable.TURKEY, (int)player.getLocation().getX(), (int)player.getLocation().getY()));
+		player.sendPacket(new PacketPlayOutSpawnCollectable(--counter, Collectable.TURKEY, player.getPositionComponent().x, player.getPositionComponent().y));
 	}
 }

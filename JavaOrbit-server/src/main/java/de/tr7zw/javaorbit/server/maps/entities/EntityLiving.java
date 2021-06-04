@@ -1,6 +1,5 @@
 package de.tr7zw.javaorbit.server.maps.entities;
 
-import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.enums.Ammo;
 import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
@@ -20,19 +19,9 @@ public interface EntityLiving extends EntityLegacy{
 	public Rank getRank();
 	public Rings getRings();
 	public Clan getClan();
-	public void setLocation(Location location);
 	public String getDroneFormationString();
 	public void onAttack(EntityLiving attacker);
 	public void damage(EntityLiving attacker, int amount);
 	public void onDeath(EntityLiving attacker);
-
-	//Moving
-	public Location getTargetLocation();
-	public boolean isMoving();
-	public void setMoving(boolean moving);
-	public long getMovingStartTime();
-	public Location getStartLocation();
-	public int getMoveTime();
-	
 	
 }

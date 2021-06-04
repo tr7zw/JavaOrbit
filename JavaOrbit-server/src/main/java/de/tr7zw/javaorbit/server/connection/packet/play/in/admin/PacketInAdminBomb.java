@@ -16,6 +16,6 @@ public class PacketInAdminBomb extends PacketPlayIn{
 	
 	@Override
 	public void onRecieve(Player player) {
-		player.sendPacket(new PacketPlayOutSpawnMine(--counter, Mine.PIRATE, (int)player.getLocation().getX(), (int)player.getLocation().getY()));
+		player.sendPacket(new PacketPlayOutSpawnMine(--counter, Mine.PIRATE, player.getPositionComponent().x, player.getPositionComponent().y));
 	}
 }
