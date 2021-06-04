@@ -27,7 +27,9 @@ public class Server implements Runnable {
 	@Getter
 	private ConnectionListener connectionListener;
 	@Getter
-	private ConnectionListener connectionListenerRetro;
+	private ConnectionListener connectionListenerRetro;    
+	@Getter
+    private ConnectionListener connectionListenerPolicyServer;
 	private Thread connectionThread;
 	@Getter
 	private ConnectionPool connectionPool;
@@ -35,8 +37,6 @@ public class Server implements Runnable {
 	private MapManager mapManager;
 	@Getter
 	private ChatManager chatManager;
-	// @Getter
-	// private CmsEmbededRunner cms;
 	@Inject
 	private PluginManager pluginManager;
 	@Getter
@@ -64,18 +64,16 @@ public class Server implements Runnable {
 			this.connectionPool = new ConnectionPool();
 			this.connectionListenerRetro = new ConnectionListener(5152);
 			new Thread(connectionListenerRetro).start();
+			this.connectionListenerPolicyServer = new ConnectionListener(843);
+            new Thread(connectionListenerPolicyServer).start();
 		} catch (IOException e) {
 			log.log(Level.SEVERE, "Unable to start the connection listener!", e);
 			return;
 		}
 		mapManager = new MapManager();
 		chatManager = new ChatManager();
-		// cms = new CmsEmbededRunner();
 		pluginManager.startPlugins();
-		/*
-		 * try { cms.startServer(); }catch(BindException ex) { log.log(Level.SEVERE,
-		 * "Unable to bind to port!", ex); return; }
-		 */
+
 		log.log(Level.INFO, "Server Started!");
 		while (!shutdown) {
 			try {

@@ -4,7 +4,6 @@ import java.util.Random;
 
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.Server;
-import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.PlayerConnection;
 import de.tr7zw.javaorbit.server.connection.Session;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
@@ -18,6 +17,7 @@ import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipKil
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShipRemove;
 import de.tr7zw.javaorbit.server.connection.packet.play.out.PacketPlayOutShowMessage;
 import de.tr7zw.javaorbit.server.enums.Ammo;
+import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.Gate;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Maps;

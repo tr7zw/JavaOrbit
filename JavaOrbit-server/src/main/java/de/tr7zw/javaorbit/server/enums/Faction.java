@@ -1,4 +1,4 @@
-package de.tr7zw.javaorbit.server.connection;
+package de.tr7zw.javaorbit.server.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

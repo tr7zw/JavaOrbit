@@ -1,7 +1,7 @@
 package de.tr7zw.javaorbit.server.connection.packet.play.in.admin;
 
-import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.packet.PacketPlayIn;
+import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.player.Clan;
 import de.tr7zw.javaorbit.server.player.Player;

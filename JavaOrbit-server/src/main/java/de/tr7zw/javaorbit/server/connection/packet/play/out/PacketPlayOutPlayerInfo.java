@@ -1,7 +1,7 @@
 package de.tr7zw.javaorbit.server.connection.packet.play.out;
 
-import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
+import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Rank;

@@ -1,6 +1,5 @@
 package de.tr7zw.javaorbit.server.enums;
 
-import de.tr7zw.javaorbit.server.connection.Faction;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

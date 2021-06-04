@@ -1,0 +1,17 @@
+package de.tr7zw.javaorbit.server.connection.gamepackets.in;
+
+import de.tr7zw.javaorbit.server.connection.packet.Packet;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class LoginRequest extends Packet{
+
+    private int instanceId = 0;      
+    private int userID = 0;     
+    private int factionID = 0;      
+    private String sessionID = "";     
+    private String version = "";
+    
+}

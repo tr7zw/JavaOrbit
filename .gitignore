@@ -13,3 +13,5 @@ JavaOrbit-server/.factorypath
 target/javadoc-bundle-options/javadoc-options-javadoc-resources.xml
 *.bak
 JavaOrbit-server/plugins
+JavaOrbit-9_0Protocol
+JavaOrbit-10_0Protocol

@@ -1,8 +1,8 @@
 package de.tr7zw.javaorbit.server.connection.packet.play.out;
 
-import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.connection.packet.PacketOut;
 import de.tr7zw.javaorbit.server.enums.ClanStatus;
+import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;

@@ -39,10 +39,12 @@ public class PlayerConnection implements Runnable{
 	private PrintWriter printWriter;
 
 	@Getter
+	@Setter
 	private Player player;
 	@Getter
 	private ChatUser chatUser;
 	@Getter
+	@Setter
 	private Version version;
 
 	public PlayerConnection(@NonNull Socket socket) throws IOException {

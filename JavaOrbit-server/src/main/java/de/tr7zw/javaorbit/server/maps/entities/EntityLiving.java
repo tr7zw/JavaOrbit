@@ -1,8 +1,8 @@
 package de.tr7zw.javaorbit.server.maps.entities;
 
 import de.tr7zw.javaorbit.server.Location;
-import de.tr7zw.javaorbit.server.connection.Faction;
 import de.tr7zw.javaorbit.server.enums.Ammo;
+import de.tr7zw.javaorbit.server.enums.Faction;
 import de.tr7zw.javaorbit.server.enums.LaserLook;
 import de.tr7zw.javaorbit.server.enums.Rank;
 import de.tr7zw.javaorbit.server.enums.Rings;
