@@ -7,6 +7,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+import com.badlogic.ashley.core.ComponentMapper;
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.signals.Signal;
+
 import de.tr7zw.javaorbit.server.GateTarget;
 import de.tr7zw.javaorbit.server.Location;
 import de.tr7zw.javaorbit.server.Position;
@@ -21,13 +26,17 @@ import de.tr7zw.javaorbit.server.enums.Maps;
 import de.tr7zw.javaorbit.server.enums.Station;
 import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.enums.collectables.Collectable;
-import de.tr7zw.javaorbit.server.maps.entities.Entity;
+import de.tr7zw.javaorbit.server.events.PlayerEvent;
+import de.tr7zw.javaorbit.server.maps.entities.EntityLegacy;
 import de.tr7zw.javaorbit.server.maps.entities.EntityCollectable;
 import de.tr7zw.javaorbit.server.maps.entities.EntityGate;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
+import de.tr7zw.javaorbit.server.maps.listener.MapStaticListener;
 import de.tr7zw.javaorbit.server.npc.EntityLordakia;
 import de.tr7zw.javaorbit.server.npc.EntityNPC;
 import de.tr7zw.javaorbit.server.npc.EntityStreuner;
+import de.tr7zw.javaorbit.server.npc.PositionComponent;
+import de.tr7zw.javaorbit.server.npc.StationComponent;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -35,40 +44,59 @@ import lombok.extern.java.Log;
 @Log
 public class MapInstance {
 
+    // Static data
 	private static AtomicInteger ID_COUNTER = new AtomicInteger(0);
 	private static final Random random = new Random();
 
 	@Getter private Maps map;
 	@Getter private int instanceId = ID_COUNTER.getAndIncrement(); 
 	private InstanceThread thread = new InstanceThread(this);
+	@Getter private Engine entityEngine = new Engine();
 	@Getter private HashMap<Integer, Player> players = new HashMap<>();
 	@Getter private HashMap<Integer, EntityLiving> livingEntities = new HashMap<>();
 	@Getter private HashMap<Integer, EntityCollectable> collectables = new HashMap<>();
-	private HashMap<Position, Station> stations = new HashMap<>();
 	@Getter private HashMap<Integer, EntityGate> gates = new HashMap<>();
 	@Getter private HashMap<EntityTarget, Integer> entityTargetAmount = new HashMap<>();
+	// Events
+	@Getter private Signal<Player> playerJoinEvent = new Signal<>();
+	@Getter private Signal<Player> playerLeaveEvent = new Signal<>();
+	
 	
 	protected MapInstance(Maps map) {
 		this.map = map;
 		log.log(Level.INFO, "Created Instance id " + instanceId + " for map " + map.name());
 		addCollectable(new EntityCollectable(Collectable.EASTEREGG, new Location(this, 1963, 1967)));
 		if(map == Maps.MAP1_1) {
-			stations.put(new Position(1000, 1000), Station.MMO_STATION);
+			Entity station = entityEngine.createEntity();
+			station.add(new PositionComponent(this, 1000, 1000));
+			station.add(new StationComponent(Station.MMO_STATION));
+		    entityEngine.addEntity(station);
 			addGate(new EntityGate(Gate.NORMAL, new Location(this, 18500,11500), new GateTarget(Maps.MAP1_2, 1000, 1000)));
 			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 60);
 		}
 		if(map == Maps.MAP2_1) {
-			stations.put(new Position(20000, 1000), Station.EIC_STATION);
+		    Entity station = entityEngine.createEntity();
+            station.add(new PositionComponent(this, 20000, 1000));
+            station.add(new StationComponent(Station.EIC_STATION));
+            entityEngine.addEntity(station);
 		}
 		if(map == Maps.MAP3_1) {
-			stations.put(new Position(20000, 12000), Station.VRU_STATION);
+		    Entity station = entityEngine.createEntity();
+            station.add(new PositionComponent(this, 20000, 12000));
+            station.add(new StationComponent(Station.VRU_STATION));
+            entityEngine.addEntity(station);
 		}
 		if(map == Maps.MAP1_2){
 			addGate(new EntityGate(Gate.NORMAL, new Location(this, 1000, 1000), new GateTarget(Maps.MAP1_1, 18500,11500)));
 			entityTargetAmount.put(new EntityTarget(EntityStreuner.class, EntityStreuner::new), 30);
 			entityTargetAmount.put(new EntityTarget(EntityLordakia.class, EntityLordakia::new), 30);	
 		}
+		initHandlers();
 		thread.start();
+	}
+	
+	private void initHandlers() {
+	    playerJoinEvent.add(new MapStaticListener(this));
 	}
 	
 	public Location getRandomLocation(){
@@ -84,6 +112,7 @@ public class MapInstance {
 		this.livingEntities.put(player.getSession().getUserId(), player);
 		log.log(Level.INFO, "Player '" + player.getName() + "' joined the map " + map.name());
 		sendStatic(player);
+		playerJoinEvent.dispatch(player);
 	}
 	
 	public Player getPlayer(int id) {
@@ -102,6 +131,9 @@ public class MapInstance {
 			}
 			players.remove(entity.getId());
 			livingEntities.remove(entity.getId());
+			if(entity instanceof Player) {
+			    playerLeaveEvent.dispatch((Player) entity);
+			}
 			log.log(Level.INFO, "EntityLiving '" + entity.getName() + "' left the map " + map.name());
 		}
 	}
@@ -114,7 +146,7 @@ public class MapInstance {
 		gates.put(gate.getId(), gate);
 	}
 
-	public boolean inStation(Location loc, Faction faction){
+	/*public boolean inStation(Location loc, Faction faction){
 		if(faction == Faction.MMO && map != Maps.MAP1_1)return false;
 		if(faction == Faction.EIC && map != Maps.MAP2_1)return false;
 		if(faction == Faction.VRU && map != Maps.MAP3_1)return false;
@@ -123,8 +155,8 @@ public class MapInstance {
 				return true;
 		}
 		return false;
-	}
-
+	}*/
+	
 	public int getMapWidth(){
 		if(map == Maps.MAP4_4 || map == Maps.MAP4_5)return 42000;
 		return 21000;
@@ -148,9 +180,6 @@ public class MapInstance {
 		for(EntityCollectable entity : collectables.values()) { //Nonstatic
 			player.sendPacket(new PacketPlayOutSpawnCollectable(entity.getId(), entity.getType(), entity.getLocation().getX(), entity.getLocation().getY()));
 		}
-		for(Entry<Position, Station> entry : stations.entrySet()) {
-			player.sendPacket(new PacketPlayOutSpawnStation(entry.getValue().name(), entry.getValue(), entry.getKey().getX(), entry.getKey().getY()));
-		}
 		for(EntityGate gate : gates.values()) {
 			player.sendPacket(new PacketPlayOutSpawnGate(gate.getId(), gate.getGate(), gate.getLocation().getX(), gate.getLocation().getY()));
 		}
@@ -167,7 +196,7 @@ public class MapInstance {
 		}
 	}
 
-	public void sendContextPacket(Entity entity, PacketOut packet) {
+	public void sendContextPacket(EntityLegacy entity, PacketOut packet) {
 		HashSet<Player> sendList = new HashSet<>();
 		if(entity instanceof Player){
 			Player player = (Player)entity;

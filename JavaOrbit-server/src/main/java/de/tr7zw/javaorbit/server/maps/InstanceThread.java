@@ -134,7 +134,7 @@ public class InstanceThread extends Thread {
 
 	private void updatePlayerStatus(Player player){
 		player.setNextGate(instance.getGateAt(player.getLocation()));
-		player.setInBase(instance.inStation(player.getLocation(), player.getFaction()));
+		// TODO move to component system player.setInBase(instance.inStation(player.getLocation(), player.getFaction()));
 		int x = player.getLocation().getX();
 		int y = player.getLocation().getY();
 		player.setInRadiationZone(x < 0 || y < 0 || x > instance.getMapWidth() || y > instance.getMapHeight());

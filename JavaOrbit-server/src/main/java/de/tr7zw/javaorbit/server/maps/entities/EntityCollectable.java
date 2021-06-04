@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class EntityCollectable implements Entity{
+public class EntityCollectable implements EntityLegacy{
 
 	private static AtomicInteger ID_COUNTER = new AtomicInteger(-1);
 	private int id = ID_COUNTER.decrementAndGet();

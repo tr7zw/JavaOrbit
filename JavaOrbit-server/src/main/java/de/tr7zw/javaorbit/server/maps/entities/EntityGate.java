@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class EntityGate implements Entity{
+public class EntityGate implements EntityLegacy{
 
 	private static AtomicInteger COUNTER = new AtomicInteger(0);
 	private int id = COUNTER.incrementAndGet();
