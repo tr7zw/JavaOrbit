@@ -4,26 +4,16 @@ import de.tr7zw.javaorbit.server.connection.packet.Direction;
 import de.tr7zw.javaorbit.server.connection.packet.Packet;
 import de.tr7zw.javaorbit.server.connection.packet.chat.in.PacketChatInChatting;
 import de.tr7zw.javaorbit.server.connection.packet.chat.in.PacketChatInInit;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInAttackRocket;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInBuy;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInChangeConfig;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInClientSetting;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInJump;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLaserAttack;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLaserStop;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLogin;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLogout;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLogoutCancel;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInMove;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInPing;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInReady;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelect;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectAmmo;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectRocket;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectShip;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInSelectShipRetro;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInTech;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.*;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminBomb;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminClan;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminCollectable;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminCompany;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminName;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminPos;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminRank;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminShip;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminTP;
+import de.tr7zw.javaorbit.server.connection.packet.play.in.admin.PacketInAdminWarp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -33,7 +23,7 @@ public enum PacketType {
 	UNKNOWN(Direction.IN, "UNKNOWN", null),
 	
 	//IN
-LOGIN(Direction.IN, "LOGIN|", PacketPlayInLogin.class),
+/*LOGIN(Direction.IN, "LOGIN|", PacketPlayInLogin.class),
 PING(Direction.IN, "PNG", PacketPlayInPing.class),
 JUMP(Direction.IN, "j", PacketPlayInJump.class),
 MOVE(Direction.IN, "1|", PacketPlayInMove.class),
@@ -51,7 +41,7 @@ BUY(Direction.IN, "5|", PacketPlayInBuy.class),
 SELECT_SHIP(Direction.IN, "SEL|", PacketPlayInSelectShip.class),
 SELECT_SHIP_RETRO(Direction.IN, "L|", PacketPlayInSelectShipRetro.class),
 SELECT(Direction.IN, "S|", PacketPlayInSelect.class),
-TECH(Direction.IN, "TX|", PacketPlayInTech.class),
+TECH(Direction.IN, "TX|", PacketPlayInTech.class),*/
 
 //IN Admin
 ADMIN_RANK(Direction.IN, "/RANK", PacketInAdminRank.class),

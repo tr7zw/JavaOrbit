@@ -13,10 +13,10 @@ import de.tr7zw.javaorbit.server.Server;
 import de.tr7zw.javaorbit.server.chat.ChatUser;
 import de.tr7zw.javaorbit.server.connection.packet.Packet;
 import de.tr7zw.javaorbit.server.connection.packet.PacketChatIn;
+import de.tr7zw.javaorbit.server.connection.packet.PacketManager;
+import de.tr7zw.javaorbit.server.connection.packet.PacketParser;
 import de.tr7zw.javaorbit.server.connection.packet.PacketPlayIn;
 import de.tr7zw.javaorbit.server.connection.packet.chat.in.PacketChatInInit;
-import de.tr7zw.javaorbit.server.connection.packet.PacketParser;
-import de.tr7zw.javaorbit.server.connection.packet.play.in.PacketPlayInLogin;
 import de.tr7zw.javaorbit.server.enums.Version;
 import de.tr7zw.javaorbit.server.player.Player;
 import lombok.Getter;
@@ -137,7 +137,10 @@ public class PlayerConnection implements Runnable{
 	public void parsePacket(String data) {
 		data = data.replace("\n", "");
 		Packet packet = PacketParser.parse(data);
-		if(packet == null)return;
+		if(packet == null) {
+		    PacketManager.handleLegacyPacket(this, data);
+		    return;
+		}
 		if(chatUser != null) {
 			if(packet instanceof PacketPlayIn) {//wtf? No Play packets from the chat connection!
 				log.log(Level.WARNING, "The Chatuser " + chatUser.getUserName() + " sent a Play Packet: " + packet.getClass().getSimpleName());
@@ -149,15 +152,7 @@ public class PlayerConnection implements Runnable{
 			return;
 		}
 		if(player == null) {
-			if(packet instanceof PacketPlayInLogin) {
-				PacketPlayInLogin login = (PacketPlayInLogin) packet;
-				player = new Player(this, new Session(login.getUserId(), login.getSessionToken(), login.getVersion()), "Debug_" + login.getUserId()); 
-				version = Version.getVersion(login.getVersion());
-				log.log(Level.INFO, "Player '" + player.getName() + "' connected with version: " + version);
-				//TODO: Validate session
-				player.sendLogin();
-				return;
-			}else if(packet instanceof PacketChatInInit){
+			if(packet instanceof PacketChatInInit){
 				ChatUser chatUser = new ChatUser(this);
 				PacketChatInInit init = (PacketChatInInit) packet;
 				init.onRecieve(chatUser);

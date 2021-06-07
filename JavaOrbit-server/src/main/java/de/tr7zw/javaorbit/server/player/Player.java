@@ -350,9 +350,6 @@ public class Player implements EntityPlayer {
 
 	@Override
 	public int getId() {
-	    if(idComponent.id != getSession().getUserId()) {
-	        Thread.dumpStack();
-	    }
 		return idComponent.id;
 	}
 
