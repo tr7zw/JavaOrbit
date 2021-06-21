@@ -27,7 +27,7 @@ import de.tr7zw.javaorbit.server.maps.entities.EntityLegacy;
 import de.tr7zw.javaorbit.server.maps.entities.EntityLiving;
 import de.tr7zw.javaorbit.server.maps.listener.MapStaticListener;
 import de.tr7zw.javaorbit.server.maps.systems.GateSystem;
-import de.tr7zw.javaorbit.server.maps.systems.MovingSystem;
+import de.tr7zw.javaorbit.server.maps.systems.MovementSystem;
 import de.tr7zw.javaorbit.server.maps.systems.RadiationSystem;
 import de.tr7zw.javaorbit.server.maps.systems.StatusSystem;
 import de.tr7zw.javaorbit.server.player.Player;
@@ -54,6 +54,9 @@ public class MapInstance {
 	// Events
 	@Getter private Signal<Player> playerJoinEvent = new Signal<>();
 	@Getter private Signal<Player> playerLeaveEvent = new Signal<>();
+
+	// Systems
+	@Getter private MovementSystem movementSystem = new MovementSystem();
 
 	
 	
@@ -92,7 +95,7 @@ public class MapInstance {
 
     private void initHandlers() {
 	    playerJoinEvent.add(new MapStaticListener(this));
-	    entityEngine.addSystem(new MovingSystem());
+	    entityEngine.addSystem(movementSystem);
 	    entityEngine.addSystem(new GateSystem());
 	    entityEngine.addSystem(new StatusSystem());
 	    entityEngine.addSystem(new RadiationSystem());
